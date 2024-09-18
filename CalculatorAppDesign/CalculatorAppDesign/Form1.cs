@@ -79,7 +79,7 @@ namespace CalculatorAppDesign
 
         private void button15_Click(object sender, EventArgs e)
         {
-
+            textBox1.Text = textBox1.Text + "1";
         }
 
         private void button14_Click(object sender, EventArgs e)
