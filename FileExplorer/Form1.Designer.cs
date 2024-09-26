@@ -1,4 +1,6 @@
-﻿namespace FileExplorer
+﻿using System;
+
+namespace FileExplorer
 {
     partial class Form1
     {
@@ -36,8 +38,15 @@
             this.txtPath = new System.Windows.Forms.TextBox();
             this.btnOpen = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
+            this.cmnuMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.btnCopy = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnCut = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnPaste = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnDelete = new System.Windows.Forms.ToolStripMenuItem();
             this.lbThumbnails = new System.Windows.Forms.ImageList(this.components);
+            this.btnNew = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
+            this.cmnuMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // panel1
@@ -102,6 +111,7 @@
             // 
             // listView1
             // 
+            this.listView1.ContextMenuStrip = this.cmnuMenu;
             this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listView1.HideSelection = false;
             this.listView1.LargeImageList = this.lbThumbnails;
@@ -112,11 +122,59 @@
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.SmallIcon;
             // 
+            // cmnuMenu
+            // 
+            this.cmnuMenu.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.cmnuMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnCopy,
+            this.btnCut,
+            this.btnPaste,
+            this.btnDelete,
+            this.btnNew});
+            this.cmnuMenu.Name = "cmnuMenu";
+            this.cmnuMenu.Size = new System.Drawing.Size(211, 152);
+            this.cmnuMenu.Text = "Menu";
+            // 
+            // btnCopy
+            // 
+            this.btnCopy.Name = "btnCopy";
+            this.btnCopy.Size = new System.Drawing.Size(210, 24);
+            this.btnCopy.Text = "Copy";
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            // 
+            // btnCut
+            // 
+            this.btnCut.Name = "btnCut";
+            this.btnCut.Size = new System.Drawing.Size(210, 24);
+            this.btnCut.Text = "Cut";
+            this.btnCut.Click += new System.EventHandler(this.btnCut_Click);
+            // 
+            // btnPaste
+            // 
+            this.btnPaste.Name = "btnPaste";
+            this.btnPaste.Size = new System.Drawing.Size(210, 24);
+            this.btnPaste.Text = "Paste";
+            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(210, 24);
+            this.btnDelete.Text = "Delete";
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            // 
             // lbThumbnails
             // 
             this.lbThumbnails.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
             this.lbThumbnails.ImageSize = new System.Drawing.Size(64, 64);
             this.lbThumbnails.TransparentColor = System.Drawing.Color.Transparent;
+            // 
+            // btnNew
+            // 
+            this.btnNew.Name = "btnNew";
+            this.btnNew.Size = new System.Drawing.Size(210, 24);
+            this.btnNew.Text = "New Folder ";
+            this.btnNew.Click += new System.EventHandler(this.btnNew_Click);
             // 
             // Form1
             // 
@@ -129,9 +187,31 @@
             this.Text = "Form1";
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.cmnuMenu.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void cutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void saoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
 
         #endregion
 
@@ -143,6 +223,12 @@
         private System.Windows.Forms.Button btnForward;
         private System.Windows.Forms.Button btnBack;
         private System.Windows.Forms.ImageList lbThumbnails;
+        private System.Windows.Forms.ContextMenuStrip cmnuMenu;
+        private System.Windows.Forms.ToolStripMenuItem btnCopy;
+        private System.Windows.Forms.ToolStripMenuItem btnCut;
+        private System.Windows.Forms.ToolStripMenuItem btnPaste;
+        private System.Windows.Forms.ToolStripMenuItem btnDelete;
+        private System.Windows.Forms.ToolStripMenuItem btnNew;
     }
 }
 
