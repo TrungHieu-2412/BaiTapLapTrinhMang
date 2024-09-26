@@ -13,101 +13,132 @@ namespace FileExplorer
 {
     public partial class Form1 : Form
     {
-        private string sourcePath = "";
-        private string destinationPath = "";
-        private bool isCut = false;
+        private string currentPath = "";
+        private Stack<string> backStack = new Stack<string>();
+        private Stack<string> forwardStack = new Stack<string>();
+        private List<string> _imageFiles;
+        private int _currentIndex;
+        private object pbMainImage;
 
         public Form1()
         {
             InitializeComponent();
+            listView1.View = View.Details;
+            listView1.Columns.Add("Name", 150);
+            listView1.Columns.Add("Date Modified", 150);
+            listView1.Columns.Add("Type", 100);
+            listView1.Columns.Add("Size", 100);
+            // Đặt đường dẫn mặc định
+            currentPath = @"C:\";
+            txtPath.Text = currentPath;
+
+            // Tải thư mục mặc định
+            LoadDirectory(currentPath);
+            
         }
 
-        // Copy function
-        private void btnCopy_Click(object sender, EventArgs e)
+        private void btnOpen_Click(object sender, EventArgs e)
         {
+            // Kiểm tra nếu có mục nào được chọn trong ListView
             if (listView1.SelectedItems.Count > 0)
             {
-                sourcePath = listView1.SelectedItems[0].Tag.ToString();
-                isCut = false;
-            }
-        }
+                // Lấy item đầu tiên được chọn
+                ListViewItem selectedItem = listView1.SelectedItems[0];
+                string selectedName = selectedItem.Text;  // Lấy tên file hoặc thư mục từ item
+                string selectedPath = Path.Combine(currentPath, selectedName);  // Tạo đường dẫn đầy đủ
 
-        // Cut function
-        private void btnCut_Click(object sender, EventArgs e)
-        {
-            if (listView1.SelectedItems.Count > 0)
-            {
-                sourcePath = listView1.SelectedItems[0].Tag.ToString();
-                isCut = true;
-            }
-        }
-
-        // Paste function (now asynchronous)
-        private async void btnPaste_Click(object sender, EventArgs e)
-        {
-            if (!string.IsNullOrEmpty(sourcePath) && !string.IsNullOrEmpty(destinationPath))
-            {
-                string fileName = Path.GetFileName(sourcePath);
-                string destFile = Path.Combine(destinationPath, fileName);
-
-                if (isCut)
+                // Kiểm tra nếu mục được chọn là thư mục
+                if (Directory.Exists(selectedPath))
                 {
-                    File.Move(sourcePath, destFile);
-                    isCut = false;
+                    backStack.Push(currentPath);  // Đẩy thư mục hiện tại vào stack để quay lại
+                    currentPath = selectedPath;   // Cập nhật đường dẫn hiện tại
+                    LoadDirectory(currentPath);   // Tải thư mục mới
+                    txtPath.Text = currentPath;   // Cập nhật TextBox hiển thị đường dẫn
                 }
-                else
+                // Kiểm tra nếu mục được chọn là file
+                else if (File.Exists(selectedPath))
                 {
-                    // Use async copy
-                    await CopyFileWithStreamAsync(sourcePath, destFile);
-                }
-
-                MessageBox.Show("Paste operation completed!");
-            }
-        }
-
-        // Delete function
-        private void btnDelete_Click(object sender, EventArgs e)
-        {
-            if (listView1.SelectedItems.Count > 0)
-            {
-                string filePath = listView1.SelectedItems[0].Tag.ToString();
-                if (File.Exists(filePath))
-                {
-                    File.Delete(filePath);
-                }
-            }
-        }
-
-
-
-        // Asynchronous function to copy large files using streams
-        private async Task CopyFileWithStreamAsync(string source, string destination)
-        {
-            using (FileStream sourceStream = new FileStream(source, FileMode.Open, FileAccess.Read))
-            {
-                using (FileStream destinationStream = new FileStream(destination, FileMode.Create, FileAccess.Write))
-                {
-                    byte[] buffer = new byte[1024 * 1024]; // 1MB buffer
-                    int bytesRead;
-                    while ((bytesRead = await sourceStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    try
                     {
-                        await destinationStream.WriteAsync(buffer, 0, bytesRead);
+                        System.Diagnostics.Process.Start(selectedPath);  // Mở file bằng ứng dụng mặc định
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Unable to open file: " + ex.Message);  // Thông báo lỗi
                     }
                 }
             }
+            else
+            {
+                MessageBox.Show("Please select a file or folder to open.");
+            }
         }
 
-        // Function to load folders and files
-        private void LoadFoldersAndFiles(string folderPath)
+        private void LoadDirectory(string path)
         {
-            // Load folders and files into treeViewFolders and listViewFiles
+            try
+            {
+                listView1.Items.Clear();  // Xóa các mục hiện có trong ListView
+
+                // Lấy danh sách các thư mục và tệp trong thư mục hiện tại
+                string[] files = Directory.GetFiles(path);
+                string[] directories = Directory.GetDirectories(path);
+
+                foreach (string directory in directories)
+                {
+                    DirectoryInfo dirInfo = new DirectoryInfo(directory);
+                    ListViewItem item = new ListViewItem(dirInfo.Name);
+                    item.SubItems.Add(dirInfo.LastWriteTime.ToString());
+                    item.SubItems.Add("Folder");
+                    item.SubItems.Add("");  // Thư mục không có kích thước
+                    listView1.Items.Add(item);
+                }
+
+                foreach (string file in files)
+                {
+                    FileInfo fileInfo = new FileInfo(file);
+                    ListViewItem item = new ListViewItem(fileInfo.Name);
+                    item.SubItems.Add(fileInfo.LastWriteTime.ToString());
+                    item.SubItems.Add(fileInfo.Extension);
+                    item.SubItems.Add(fileInfo.Length.ToString());
+                    listView1.Items.Add(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error loading directory: " + ex.Message);  // Thông báo nếu có lỗi
+            }
         }
 
-        // Event handler when a folder is selected in the TreeView
-        private void treeViewFolders_AfterSelect(object sender, TreeViewEventArgs e)
+        private void btnBack_Click(object sender, EventArgs e)
         {
-            destinationPath = e.Node.FullPath; // Set the destination path for paste operation
-            LoadFoldersAndFiles(destinationPath);
+            if (backStack.Count > 0)
+            {
+                forwardStack.Push(currentPath);  // Lưu đường dẫn hiện tại vào forwardStack
+                currentPath = backStack.Pop();   // Lấy đường dẫn trước đó từ backStack
+                LoadDirectory(currentPath);      // Tải thư mục trước đó
+                txtPath.Text = currentPath;      // Cập nhật TextBox
+            }
+            else
+            {
+                MessageBox.Show("No more history to go back to.");
+            }
         }
+
+        private void btnForward_Click(object sender, EventArgs e)
+        {
+            if (forwardStack.Count > 0)
+            {
+                backStack.Push(currentPath);  // Lưu đường dẫn hiện tại vào backStack
+                currentPath = forwardStack.Pop();  // Lấy đường dẫn tiếp theo từ forwardStack
+                LoadDirectory(currentPath);   // Tải thư mục
+                txtPath.Text = currentPath;   // Cập nhật TextBox
+            }
+            else
+            {
+                MessageBox.Show("No more forward history.");
+            }
+        }
+        
     }
 }
