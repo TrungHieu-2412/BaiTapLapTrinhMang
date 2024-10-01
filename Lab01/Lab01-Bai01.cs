@@ -58,6 +58,16 @@ namespace Lab01
         {
             this.Close();
         }
+
+        private void Lab01_Bai01_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtSothu1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 
