@@ -96,6 +96,9 @@
     <EmbeddedResource Include="Lab01-Bai03.resx">
       <DependentUpon>Lab01-Bai03.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Lab01-Bai04.resx">
+      <DependentUpon>Lab01-Bai04.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Lab01-Bai05.resx">
       <DependentUpon>Lab01-Bai05.cs</DependentUpon>
     </EmbeddedResource>
