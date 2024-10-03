@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Lab02
 {
-    public partial class Lab02_Bai01 : Form
+    public partial class Lab02_Bai01 : System.Windows.Forms.Form
     {
         public Lab02_Bai01()
         {

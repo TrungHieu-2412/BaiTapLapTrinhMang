@@ -10,11 +10,16 @@ using System.Windows.Forms;
 
 namespace Lab02
 {
-    public partial class Lab02_Bai03 : Form
+    public partial class Lab02_Bai03 : System.Windows.Forms.Form
     {
         public Lab02_Bai03()
         {
             InitializeComponent();
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
