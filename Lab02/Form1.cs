@@ -40,11 +40,11 @@ namespace Lab02
             Lab02_Bai04 Bai4Form = new Lab02_Bai04();
             Bai4Form.Show();
         }
+
         private void button5_Click(object sender, EventArgs e)
         {
             Lab02_Bai05 Bai5Form = new Lab02_Bai05();
             Bai5Form.Show();
         }
-
     }
 }
