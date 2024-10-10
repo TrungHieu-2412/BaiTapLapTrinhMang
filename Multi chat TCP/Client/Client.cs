@@ -1,28 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Client
 {
     public partial class Client : Form
     {
+        private IPEndPoint IP;
+        private Socket client;
+        private string clientName = "Client1"; // Đặt tên client
+
         public Client()
         {
             InitializeComponent();
-
             CheckForIllegalCrossThreadCalls = false;
-
             Connect();
         }
 
@@ -31,17 +26,21 @@ namespace Client
 
         }
 
-        private void btnSend_Click(object sender, EventArgs e)
+        // Khi form bị đóng
+        private void Client_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Send();
-            AddMessage(txbMessage.Text);
+            CloseClient();
         }
 
-        IPEndPoint IP;
-        Socket client;
+        // Khi nhấn nút gửi tin nhắn
+        private void btnSend_Click(object sender, EventArgs e)
+        {
+            SendMessage();
+            txbMessage.Clear();
+        }
 
-        // Khoi tao ket noi
-        void Connect()
+        // Khởi tạo kết nối tới server
+        private void Connect()
         {
             IP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9999);
             client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
@@ -49,84 +48,86 @@ namespace Client
             try
             {
                 client.Connect(IP);
+                Thread receiveThread = new Thread(ReceiveMessage);
+                receiveThread.IsBackground = true;
+                receiveThread.Start();
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Khong the ket noi den Server", "Loi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show("Không thể kết nối tới server: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-
-            Thread listen = new Thread(Receive);
-            listen.IsBackground = true;
-            listen.Start();
-
-
         }
-         // Dong ket noi
-         void Close()
+
+        // Đóng kết nối client
+        private void CloseClient()
         {
-            client.Close();
+            if (client != null && client.Connected)
+            {
+                client.Close();
+            }
         }
 
-        // Gui tin di
-        void Send()
+        // Gửi tin nhắn đến server
+        void SendMessage()
         {
-            if (txbMessage.Text != string.Empty)
-                client.Send(Serialize(txbMessage.Text));
+            if (!string.IsNullOrEmpty(txbMessage.Text))
+            {
+                // Đóng gói tin nhắn với tên người gửi
+                string message = $"{clientName}: {txbMessage.Text}";
+                client.Send(Serialize(message));
+            }
         }
 
-        // Them message vao khung chat
-        void AddMessage(string s)
-        {
-            LsvMessage.Items.Add(new ListViewItem() { Text = s });
-            txbMessage.Clear();
-        }
-        
-        // Nhan tin
-        void Receive()
+        // Nhận tin nhắn từ server
+        void ReceiveMessage()
         {
             try
             {
                 while (true)
                 {
                     byte[] data = new byte[1024 * 5000];
-                    client.Receive(data);
+                    int receivedDataSize = client.Receive(data);
 
-                    string message = (string)Deserialize(data);
+                    if (receivedDataSize > 0)
+                    {
+                        // Giải nén tin nhắn
+                        string message = (string)Deserialize(data);
 
-                    AddMessage(message);
+                        // Hiển thị tin nhắn kèm tên người gửi
+                        AddMessage(message);
+                    }
                 }
             }
-            catch
+            catch (SocketException)
             {
-                Close();
+                MessageBox.Show("Mất kết nối tới server", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CloseClient();
             }
         }
 
-        // Phan Manh goi tin thanh byte de gui di
-        byte[] Serialize(object obj)
+        // Thêm tin nhắn vào ListView để hiển thị
+        private void AddMessage(string message)
         {
-            MemoryStream stream = new MemoryStream();
-            BinaryFormatter formatter = new BinaryFormatter();
-
-            formatter.Serialize(stream, obj);
-            return stream.ToArray();
+            LsvMessage.Items.Add(new ListViewItem() { Text = message });
         }
 
-        //Gom manh lai
-        object Deserialize(byte[] data)
+        // Serialize (phân mảnh) dữ liệu để gửi
+        private byte[] Serialize(object obj)
         {
-            MemoryStream stream = new MemoryStream(data);
+            MemoryStream memoryStream = new MemoryStream();
             BinaryFormatter formatter = new BinaryFormatter();
 
-            return formatter.Deserialize(stream);
+            formatter.Serialize(memoryStream, obj);
+            return memoryStream.ToArray();
         }
 
-        // Dong form ngat ket noi
-        private void Client_FormClosed(object sender, FormClosedEventArgs e)
+        // Deserialize (gộp mảnh) dữ liệu nhận được
+        private object Deserialize(byte[] data)
         {
-            Close();
+            MemoryStream memoryStream = new MemoryStream(data);
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            return formatter.Deserialize(memoryStream);
         }
     }
 }

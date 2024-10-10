@@ -36,9 +36,10 @@
             // LsvMessage
             // 
             this.LsvMessage.HideSelection = false;
-            this.LsvMessage.Location = new System.Drawing.Point(12, 12);
+            this.LsvMessage.Location = new System.Drawing.Point(16, 15);
+            this.LsvMessage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.LsvMessage.Name = "LsvMessage";
-            this.LsvMessage.Size = new System.Drawing.Size(776, 371);
+            this.LsvMessage.Size = new System.Drawing.Size(1033, 456);
             this.LsvMessage.TabIndex = 0;
             this.LsvMessage.UseCompatibleStateImageBehavior = false;
             this.LsvMessage.View = System.Windows.Forms.View.List;
@@ -47,18 +48,20 @@
             // 
             this.txbMessage.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.txbMessage.Location = new System.Drawing.Point(12, 399);
+            this.txbMessage.Location = new System.Drawing.Point(16, 491);
+            this.txbMessage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txbMessage.Multiline = true;
             this.txbMessage.Name = "txbMessage";
-            this.txbMessage.Size = new System.Drawing.Size(668, 39);
+            this.txbMessage.Size = new System.Drawing.Size(889, 47);
             this.txbMessage.TabIndex = 1;
             // 
             // btnSend
             // 
             this.btnSend.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSend.Location = new System.Drawing.Point(686, 399);
+            this.btnSend.Location = new System.Drawing.Point(915, 491);
+            this.btnSend.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(102, 39);
+            this.btnSend.Size = new System.Drawing.Size(136, 48);
             this.btnSend.TabIndex = 2;
             this.btnSend.Text = "Send";
             this.btnSend.UseVisualStyleBackColor = true;
@@ -66,12 +69,13 @@
             // 
             // Client
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1067, 554);
             this.Controls.Add(this.btnSend);
             this.Controls.Add(this.txbMessage);
             this.Controls.Add(this.LsvMessage);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "Client";
             this.Text = "client";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Client_FormClosed);
