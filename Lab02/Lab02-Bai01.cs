@@ -22,22 +22,23 @@ namespace Lab02
         {
             try
             {
-                // Đường dẫn đến file input
-                string inputFilePath = "input1.txt";
+                // Tạo hộp thoại OpenFileDialog
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Title = "Chọn file để đọc";
+                openFileDialog.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
 
-                // Kiểm tra xem file có tồn tại hay không
-                if (File.Exists(inputFilePath))
+                // Hiển thị hộp thoại và kiểm tra nếu người dùng chọn một file
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Đọc toàn bộ nội dung file và đưa vào TextBox
-                    using (StreamReader reader = new StreamReader(inputFilePath))
+                    // Đường dẫn đến file do người dùng chọn
+                    string filePath = openFileDialog.FileName;
+
+                    // Đọc nội dung file và hiển thị trong TextBox
+                    using (StreamReader reader = new StreamReader(filePath))
                     {
                         string content = reader.ReadToEnd();
                         rtxt_Hien_Thi.Text = content; // Hiển thị nội dung trong TextBox
                     }
-                }
-                else
-                {
-                    MessageBox.Show("File 'input1.txt' không tồn tại.", "Thông báo");
                 }
             }
             catch (Exception ex)
