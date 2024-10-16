@@ -3,44 +3,45 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.RegularExpressions;
 
 namespace Lab02
 {
-    [Serializable]
-    public class Student
+    public partial class Lab02_Bai04 : Form
     {
-        public string Name { get; set; }
-        public int ID { get; set; }
-        public string Phone { get; set; }
-        public float Course1 { get; set; }
-        public float Course2 { get; set; }
-        public float Course3 { get; set; }
-        public float Average { get; set; }
-        public void CalculateAverage()
-        {
-            Average = (Course1 + Course2 + Course3) / 3;
-        }
-        public override string ToString()
-        {
-            return $"{Name}\n{ID}\n{Phone}\n{Course1}\n{Course2}\n{Course3}\n{Average}";
-        }
-    }
+
+        int index = 0;
 
 
-    public partial class Lab02_Bai04 : System.Windows.Forms.Form
-    {
+        [Serializable]
+        public class Student
+        {
+            public string Name { get; set; }
+            public int ID { get; set; }
+            public string Phone { get; set; }
+            public float Course1 { get; set; }
+            public float Course2 { get; set; }
+            public float Course3 { get; set; }
+            public float Average { get; set; }
+            public void CalculateAverage()
+            {
+                Average = (Course1 + Course2 + Course3) / 3;
+            }
+            //public override string ToString()
+            //{
+            //    return $"{Name}\n{ID}\n{Phone}\n{Course1}\n{Course2}\n{Course3}\n{Average}";
+            //}
+        }
+
         private List<Student> students = new List<Student>();
-        private int currentPage = 1;
-        private int pageSize = 5; // Số sinh viên mỗi trang
-        private string inputFilePath = "input4.txt";
-        private string outputFilePath = "output4.txt";
+
 
         public Lab02_Bai04()
         {
@@ -48,20 +49,22 @@ namespace Lab02
             AddButton.Click += new EventHandler(AddButton_Click);
             WriteToFileButton.Click += new EventHandler(WriteToFileButton_Click);
             ReadFromFileButton.Click += new EventHandler(ReadFromFileButton_Click);
-            NextPageButton.Click += new EventHandler(NextPageButton_Click);
-            PreviousPageButton.Click += new EventHandler(PreviousPageButton_Click);
-        }
-        private void Lab02_Bai04_Load(object sender, EventArgs e)
-        {
-
+            NextButton.Click += new EventHandler(NextButton_Click);
+            BackButton.Click += new EventHandler(BackButton_Click);
         }
 
 
+        //ADD BUTTON
         private void AddButton_Click(object sender, EventArgs e)
         {
-            // Lấy thông tin từ các TextBox
+            // Lấy thông tin từ các TextBox va check dieu kien
             string name = nameTextBox.Text;
             int id;
+            if (string.IsNullOrEmpty(name))
+            {
+                MessageBox.Show("Nhập đầy đủ thông tin trước khi ghi", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
             if (!int.TryParse(idTextBox.Text, out id) || id.ToString().Length != 8)
             {
                 MessageBox.Show("Mã số sinh viên phải có 8 chữ số.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -82,6 +85,15 @@ namespace Lab02
                 return;
             }
 
+            //Hien thi thong tin tren cai Man hinh chinh giua
+            richTextBoxFile.Text += (nameTextBox.Text + Environment.NewLine);
+            richTextBoxFile.Text += (idTextBox.Text + Environment.NewLine);
+            richTextBoxFile.Text += (phoneTextBox.Text + Environment.NewLine);
+            richTextBoxFile.Text += (course1TextBox.Text + Environment.NewLine);
+            richTextBoxFile.Text += (course2TextBox.Text + Environment.NewLine);
+            richTextBoxFile.Text += (course3TextBox.Text + Environment.NewLine);
+            richTextBoxFile.Text += Environment.NewLine;
+
             // Thêm sinh viên mới vào danh sách
             Student newStudent = new Student
             {
@@ -90,16 +102,13 @@ namespace Lab02
                 Phone = phone,
                 Course1 = course1,
                 Course2 = course2,
-                Course3 = course3
+                Course3 = course3,
+                Average = (course1 + course2 + course3) / 3
             };
             students.Add(newStudent);
-            MessageBox.Show("Thêm sinh viên thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
             // Xóa thông tin trong các TextBox
             ClearInputFields();
-
-            // Hiển thị danh sách sinh viên
-            DisplayStudents();
+            MessageBox.Show("Thêm sinh viên thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void ClearInputFields()
@@ -112,104 +121,105 @@ namespace Lab02
             course3TextBox.Text = "";
         }
 
+
+        //WRITE TO A FILE 
         private void WriteToFileButton_Click(object sender, EventArgs e)
         {
-            using (FileStream fs = new FileStream(inputFilePath, FileMode.Create))
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.DefaultExt = "txt";
+            if (sfd.ShowDialog() == DialogResult.OK)
             {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(fs, students);
+                using (FileStream fs = new FileStream(sfd.FileName, FileMode.Create))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    formatter.Serialize(fs, richTextBoxFile.Text);
+                }
+                MessageBox.Show("Ghi thành công vào file: " + sfd.FileName.ToString(), "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            MessageBox.Show("Ghi vào file thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ReadFromFileButton.Enabled = true;
         }
 
 
+
+        //READ FROM A FILE 
         private void ReadFromFileButton_Click(object sender, EventArgs e)
         {
-            if (!File.Exists(inputFilePath))
+            OpenFileDialog dlg = new OpenFileDialog();
+            if (dlg.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("File không tồn tại.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            using (FileStream fs = new FileStream(inputFilePath, FileMode.Open))
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                students = (List<Student>)formatter.Deserialize(fs);
-            }
+                using (FileStream fs = new FileStream(dlg.FileName, FileMode.Open))
+                {
+                    BinaryFormatter formatter = new BinaryFormatter();
+                    richTextBoxFile.Text = (string)formatter.Deserialize(fs);
+                }
 
-            // Tính điểm trung bình cho từng sinh viên
-            foreach (var student in students)
-            {
-                student.CalculateAverage();
+                //Chua hieu Index o dau ra
+                DisplayStudentOnRight(index);
+
             }
+            BackButton.Enabled = false;
+            NextButton.Enabled = true;
+            //richTextBoxFile.Clear();
+        }
 
-            // Ghi thông tin sinh viên có điểm trung bình xuống file output4.txt
-            WriteToOutputFile();
-            DisplayStudents();
 
-            // Hiển thị sinh viên đầu tiên lên phần bên phải
-            if (students.Count > 0)
+
+
+        private void DisplayStudentOnRight(int a)
+        {
+            nameTextBoxRight.Text = students[a].Name;
+            idTextBoxRight.Text = students[a].ID.ToString();
+            phoneTextBoxRight.Text = students[a].Phone.ToString();
+            course1TextBoxRight.Text = students[a].Course1.ToString();
+            course2TextBoxRight.Text = students[a].Course2.ToString();
+            course3TextBoxRight.Text = students[a].Course3.ToString();
+            averageTextBoxRight.Text = students[a].Average.ToString();
+
+            studentIndexLabel.Text = $"{a + 1}";
+        }
+
+        private void BackButton_Click(object sender, EventArgs e)
+        {
+            if (index > 0)
             {
-                currentPage = 1; // Đặt trang hiện tại là 1
-                DisplayStudentOnRight(0); // Hiển thị sinh viên đầu tiên
+                index--;
+                DisplayStudentOnRight(index);
+            }
+            if (index < students.Count() - 1)
+            {
+                NextButton.Enabled = true;
+            }
+            if (index > 0)
+            {
+                BackButton.Enabled = true;
+            }
+            if (index == 0)
+            {
+                BackButton.Enabled = false;
             }
         }
 
-        private void DisplayStudentOnRight(int studentIndex)
+        private void NextButton_Click(object sender, EventArgs e)
         {
-            if (studentIndex >= 0 && studentIndex < students.Count)
+            if (index < students.Count() - 1)
             {
-                Student student = students[studentIndex];
-                nameTextBoxRight.Text = student.Name;
-                idTextBoxRight.Text = student.ID.ToString();
-                phoneTextBoxRight.Text = student.Phone;
-                course1TextBoxRight.Text = student.Course1.ToString();
-                course2TextBoxRight.Text = student.Course2.ToString();
-                course3TextBoxRight.Text = student.Course3.ToString();
-                averageTextBoxRight.Text = student.Average.ToString("F2");
+                index++;
+                DisplayStudentOnRight(index);
+            }
+            if (index > 0)
+            {
+                BackButton.Enabled = true;
+            }
+            if (index == students.Count() - 1)
+            {
+                NextButton.Enabled = false;
             }
         }
 
-        private void WriteToOutputFile()
-        {
-            using (FileStream fs = new FileStream(outputFilePath, FileMode.Create))
-            {
-                BinaryFormatter formatter = new BinaryFormatter();
-                formatter.Serialize(fs, students);
-            }
-        }
 
-        private void DisplayStudents()
+        private void Lab02_Bai04_Load(object sender, EventArgs e)
         {
-            int start = (currentPage - 1) * pageSize;
-            int end = Math.Min(start + pageSize, students.Count);
-            studentListBox.Items.Clear();
 
-            for (int i = start; i < end; i++)
-            {
-                studentListBox.Items.Add(students[i]);
-            }
-            currentPageLabel.Text = $"{currentPage} / {Math.Ceiling((double)students.Count / pageSize)}";
-        }
-
-        private void NextPageButton_Click(object sender, EventArgs e)
-        {
-            // Kiểm tra nếu vẫn còn trang tiếp theo để chuyển đến
-            if (currentPage * pageSize < students.Count)
-            {
-                currentPage++;
-                DisplayStudents();
-                DisplayStudentOnRight((currentPage - 1) * pageSize); // Hiển thị sinh viên tương ứng trên TextBox
-            }
-        }
-        private void PreviousPageButton_Click(object sender, EventArgs e)
-        {
-            // Kiểm tra nếu vẫn còn trang trước đó để quay lại
-            if (currentPage > 1)
-            {
-                currentPage--;
-                DisplayStudents();
-                DisplayStudentOnRight((currentPage - 1) * pageSize); // Hiển thị sinh viên tương ứng trên TextBox
-            }
         }
     }
 }
