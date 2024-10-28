@@ -72,8 +72,23 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UdpClient.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UdpClient.Designer.cs">
+      <DependentUpon>UdpClient.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UdpServer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UdpServer.Designer.cs">
+      <DependentUpon>UdpServer.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab03-Bai01.resx">
+      <DependentUpon>Lab03-Bai01.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -84,6 +99,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="UdpClient.resx">
+      <DependentUpon>UdpClient.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UdpServer.resx">
+      <DependentUpon>UdpServer.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

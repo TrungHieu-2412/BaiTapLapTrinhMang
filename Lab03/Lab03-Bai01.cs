@@ -16,5 +16,17 @@ namespace Lab03
         {
             InitializeComponent();
         }
+
+        private void btnStartServer_Click(object sender, EventArgs e)
+        {
+            UdpServer serverForm = new UdpServer();
+            serverForm.Show();
+        }
+
+        private void btnStartClient_Click(object sender, EventArgs e)
+        {
+            UdpClientForm clientForm = new UdpClientForm();
+            clientForm.Show();
+        }
     }
 }
