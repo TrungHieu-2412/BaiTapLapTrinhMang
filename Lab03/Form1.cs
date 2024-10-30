@@ -31,8 +31,13 @@ namespace Lab03
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Lab03_Bai05 bai5Form = new Lab03_Bai05();
+            CINEMA_BOOK_TICKET bai5Form = new CINEMA_BOOK_TICKET();
             bai5Form.Show();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }

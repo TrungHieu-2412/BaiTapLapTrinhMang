@@ -28,5 +28,10 @@ namespace Lab03
             UdpClientForm clientForm = new UdpClientForm();
             clientForm.Show();
         }
+
+        private void Lab03_Bai01_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
