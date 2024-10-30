@@ -11,8 +11,7 @@ namespace Lab03
     {
         private Thread serverThread;
         private UdpClient udpServer;
-        private bool isListening = false; 
-
+        private bool isListening = false;
         public UdpServer()
         {
             InitializeComponent();
@@ -29,12 +28,7 @@ namespace Lab03
             string portText = txtPortServer.Text;
             if (IsPortValid(portText, out int port))
             {
-                serverThread = new Thread(() => serverThreadMethod(port))
-                {
-                    IsBackground = true
-                };
-                serverThread.Start();
-                isListening = true;
+                StartServer(port);
                 MessageBox.Show("Server đang lắng nghe...", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
@@ -67,7 +61,6 @@ namespace Lab03
                 MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private void ShowMessage(string message)
         {
             if (txtMessages.InvokeRequired)
@@ -104,5 +97,51 @@ namespace Lab03
             port = -1; // Nếu không hợp lệ, gán giá trị không hợp lệ cho port
             return false;
         }
+
+        private void btnChangePort_Click(object sender, EventArgs e)
+        {
+            string portText = txtPortServer.Text;
+            if (IsPortValid(portText, out int newPort))
+            {
+                // Dừng server hiện tại
+                StopServer();
+
+                // Khởi động lại server với port mới
+                StartServer(newPort);
+                MessageBox.Show($"Server đã thay đổi sang port mới: {newPort}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Vui lòng nhập port hợp lệ (1-65535).", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        // Dừng server hiện tại
+        private void StopServer()
+        {
+            try
+            {
+                if (isListening)
+                {
+                    udpServer?.Close();  // Đóng UdpClient hiện tại
+                    serverThread?.Abort();  // Dừng luồng lắng nghe
+                    isListening = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi dừng server: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        // Khởi động server với port mới
+        private void StartServer(int port)
+        {
+            serverThread = new Thread(() => serverThreadMethod(port))
+            {
+                IsBackground = true
+            };
+            serverThread.Start();
+            isListening = true;
+        }
+
     }
 }
