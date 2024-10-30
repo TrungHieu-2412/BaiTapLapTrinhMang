@@ -176,51 +176,6 @@ namespace Lab03
             }
         }
 
-
-
-
-        // Send the booking request to the server
-        //private void btnComfirm_Click(object sender, EventArgs e)
-        //{
-        //    if (selectedSeat == 0)
-        //    {
-        //        MessageBox.Show("Please select a seat.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //        return;
-        //    }
-
-        //    try
-        //    {
-        //        // Send the booking request to the server
-        //        string bookingRequest = $"{txtName.Text},{selectedSeat}";
-        //        byte[] data = Encoding.ASCII.GetBytes(bookingRequest);
-        //        clientSocket.Send(data);
-
-        //        // Receive the server response (not needed here)
-        //        // ...
-
-        //        // Update seat status on the client
-        //        foreach (Control control in this.Controls)
-        //        {
-        //            if (control is Button && control.Name.StartsWith("btnSeat") &&
-        //                int.Parse(control.Text) == selectedSeat)
-        //            {
-        //                control.BackColor = Color.Gray;
-        //                control.Enabled = false;
-        //                break;
-        //            }
-        //        }
-
-        //        MessageBox.Show("Seat booked successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-        //        // Reset the seat selection
-        //        selectedSeat = 0;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show("Booking Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //}
-
         // Receive seat updates from the server
         private void ReceiveSeatUpdates()
         {
@@ -297,7 +252,9 @@ namespace Lab03
                         {
                             btn.BackColor = Color.Gray;
                             btn.Enabled = false;
-                            btn.Text = $"{seatNumber} ({clientName})";
+                            //btn.Text = $"{seatNumber} ({clientName})";
+                            btn.Text = $"{seatNumber}";
+
                         }
                     }
                 }
