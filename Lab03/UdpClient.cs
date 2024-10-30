@@ -11,9 +11,10 @@ namespace Lab03
         public UdpClientForm()
         {
             InitializeComponent();
-            this.txtIP.Text = "127.0.0.1";           
+            this.txtIP.Text = "127.0.0.1";
+            
         }
-
+        
         private void btnSend_Click(object sender, EventArgs e)
         {
             try
@@ -28,7 +29,6 @@ namespace Lab03
                     MessageBox.Show("Vui lòng nhập địa chỉ IP và port hợp lệ (1-65535).", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-
                 // Tạo UDP client và gửi tin nhắn
                 using (UdpClient udpClient = new UdpClient())
                 {
