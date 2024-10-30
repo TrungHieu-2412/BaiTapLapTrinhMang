@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -71,6 +72,10 @@ namespace Lab03
 
                 // Indicate successful connection
                 MessageBox.Show("Connected to server!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // Start a thread to receive seat updates
+                Thread updateThread = new Thread(ReceiveSeatUpdates);
+                updateThread.Start();
             }
             catch (Exception ex)
             {
@@ -108,12 +113,15 @@ namespace Lab03
         }
 
         // Reset the previously selected seat
+        // Reset the previously selected seat
         private void ResetSelectedSeat()
         {
+            int selectedSeatInt = 0; // Khai báo biến để lưu kết quả chuyển đổi
+
             foreach (Control control in this.Controls)
             {
                 if (control is Button && control.Name.StartsWith("btnSeat") &&
-                    int.Parse(control.Text) == selectedSeat)
+                    int.TryParse(control.Text, out selectedSeatInt) && selectedSeatInt == selectedSeat)
                 {
                     control.BackColor = Color.White;
                     break;
@@ -122,6 +130,9 @@ namespace Lab03
             selectedSeat = 0;
         }
 
+
+
+        // Send the booking request to the server
         // Send the booking request to the server
         private void btnComfirm_Click(object sender, EventArgs e)
         {
@@ -138,37 +149,23 @@ namespace Lab03
                 byte[] data = Encoding.ASCII.GetBytes(bookingRequest);
                 clientSocket.Send(data);
 
-                // Receive the server response
-                byte[] buffer = new byte[1024];
-                int bytesReceived = clientSocket.Receive(buffer);
-                string response = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
+                // Receive the server response (not needed here)
+                // ...
 
-                // Update seat status based on server response
-                if (response == "booked")
+                // Update seat status on the client
+                int selectedSeatInt = 0; // Khai báo biến selectedSeatInt
+                foreach (Control control in this.Controls)
                 {
-                    // Disable the booked seat
-                    foreach (Control control in this.Controls)
+                    if (control is Button && control.Name.StartsWith("btnSeat") &&
+                        int.TryParse(control.Text, out selectedSeatInt) && selectedSeatInt == selectedSeat)
                     {
-                        if (control is Button && control.Name.StartsWith("btnSeat") &&
-                            int.Parse(control.Text) == selectedSeat)
-                        {
-                            control.BackColor = Color.Gray;
-                            control.Enabled = false;
-                            break;
-                        }
+                        control.BackColor = Color.Gray;
+                        control.Enabled = false;
+                        break;
                     }
+                }
 
-                    MessageBox.Show("Seat booked successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else if (response == "already booked")
-                {
-                    MessageBox.Show("Seat is already booked!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    ResetSelectedSeat();
-                }
-                else
-                {
-                    MessageBox.Show("Booking failed: " + response, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                MessageBox.Show("Seat booked successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 // Reset the seat selection
                 selectedSeat = 0;
@@ -176,6 +173,134 @@ namespace Lab03
             catch (Exception ex)
             {
                 MessageBox.Show("Booking Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
+
+        // Send the booking request to the server
+        //private void btnComfirm_Click(object sender, EventArgs e)
+        //{
+        //    if (selectedSeat == 0)
+        //    {
+        //        MessageBox.Show("Please select a seat.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        // Send the booking request to the server
+        //        string bookingRequest = $"{txtName.Text},{selectedSeat}";
+        //        byte[] data = Encoding.ASCII.GetBytes(bookingRequest);
+        //        clientSocket.Send(data);
+
+        //        // Receive the server response (not needed here)
+        //        // ...
+
+        //        // Update seat status on the client
+        //        foreach (Control control in this.Controls)
+        //        {
+        //            if (control is Button && control.Name.StartsWith("btnSeat") &&
+        //                int.Parse(control.Text) == selectedSeat)
+        //            {
+        //                control.BackColor = Color.Gray;
+        //                control.Enabled = false;
+        //                break;
+        //            }
+        //        }
+
+        //        MessageBox.Show("Seat booked successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        //        // Reset the seat selection
+        //        selectedSeat = 0;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show("Booking Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //    }
+        //}
+
+        // Receive seat updates from the server
+        private void ReceiveSeatUpdates()
+        {
+            while (true)
+            {
+                try
+                {
+                    // Receive data from the server
+                    byte[] buffer = new byte[1024];
+                    int bytesReceived = clientSocket.Receive(buffer);
+                    string seatUpdates = Encoding.ASCII.GetString(buffer, 0, bytesReceived);
+
+                    // Process the seat updates
+                    if (!string.IsNullOrEmpty(seatUpdates))
+                    {
+                        // Gọi hàm UpdateSeats trên UI thread
+                        if (InvokeRequired)
+                        {
+                            Invoke(new Action(() => UpdateSeats(seatUpdates)));
+                        }
+                        else
+                        {
+                            UpdateSeats(seatUpdates);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions (e.g., server disconnect)
+                    MessageBox.Show("Error receiving seat updates: " + ex.Message);
+                    // Disconnect from the server if connection is lost
+                    if (clientSocket != null)
+                    {
+                        clientSocket.Close();
+                    }
+                    // Disable booking actions
+                    if (InvokeRequired)
+                    {
+                        Invoke(new Action(() => btnComfirm.Enabled = false));
+                    }
+                    else
+                    {
+                        btnComfirm.Enabled = false;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Update the seat buttons based on the received seat updates
+        // Update the seat buttons based on the received seat updates
+        private void UpdateSeats(string seatUpdates)
+        {
+            // Split the updates into individual seat information
+            string[] seatInfos = seatUpdates.Split(';');
+
+            // Update each seat button
+            foreach (string seatInfo in seatInfos)
+            {
+                if (!string.IsNullOrEmpty(seatInfo))
+                {
+                    string[] parts = seatInfo.Split(','); // Giả sử dấu phân cách là dấu phẩy
+                    int seatNumber = 0;
+                    string clientName = "";
+
+                    // Sử dụng int.TryParse() để kiểm tra và chuyển đổi
+                    if (int.TryParse(parts[0], out seatNumber) && parts.Length > 1)
+                    {
+                        clientName = parts[1]; // Lấy tên người đặt
+
+                        // Find the corresponding button
+                        Button btn = this.Controls.Find($"btnSeat{seatNumber}", true).FirstOrDefault() as Button;
+                        if (btn != null)
+                        {
+                            btn.BackColor = Color.Gray;
+                            btn.Enabled = false;
+                            btn.Text = $"{seatNumber} ({clientName})";
+                        }
+                    }
+                }
             }
         }
 

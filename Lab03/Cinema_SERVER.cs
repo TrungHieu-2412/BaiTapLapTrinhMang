@@ -23,6 +23,9 @@ namespace Lab03
         // Seat status dictionary (key: seat number, value: client name)
         private Dictionary<int, string> seatStatus = new Dictionary<int, string>();
 
+        // Thread for sending seat updates
+        private Thread updateThread;
+
 
         public Cinema_SERVER()
         {
@@ -63,6 +66,10 @@ namespace Lab03
 
                 // Indicate successful listening
                 MessageBox.Show("Server is listening for connections!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // Start the thread to send seat updates
+                updateThread = new Thread(SendSeatUpdates);
+                updateThread.Start();
             }
             catch (Exception ex)
             {
@@ -136,23 +143,22 @@ namespace Lab03
                 string clientName = parts[0];
                 int seatNumber = int.Parse(parts[1]);
 
-                // Check if the seat is already booked
-                if (seatStatus[seatNumber] != "")
+                // Book the seat
+                seatStatus[seatNumber] = clientName;
+
+                // Cập nhật UI Server trên thread chính
+                if (InvokeRequired)
                 {
-                    // Send "already booked" response to the client
-                    byte[] data = Encoding.ASCII.GetBytes("already booked");
-                    client.Send(data);
+                    Invoke(new Action(() => UpdateSeatStatus()));
                 }
                 else
                 {
-                    // Book the seat and send "booked" response to the client
-                    seatStatus[seatNumber] = clientName;
-                    byte[] data = Encoding.ASCII.GetBytes("booked");
-                    client.Send(data);
-
-                    // Update the seat status on the server UI
                     UpdateSeatStatus();
                 }
+
+                // Send a confirmation message back to the client
+                byte[] data = Encoding.ASCII.GetBytes("booked");
+                client.Send(data);
             }
             catch (Exception ex)
             {
@@ -192,11 +198,13 @@ namespace Lab03
                     {
                         btn.BackColor = Color.Gray;
                         btn.Enabled = false;
+                        btn.Text = $"{i} ({seatStatus[i]})"; // Display name on button
                     }
                     else
                     {
                         btn.BackColor = Color.White;
                         btn.Enabled = true;
+                        btn.Text = i.ToString();
                     }
                 }
             }
@@ -204,6 +212,44 @@ namespace Lab03
             // Update the number of selected seats and empty seats
             Number_of_seats_selected.Text = seatStatus.Where(x => x.Value != "").Count().ToString();
             Number_of_empty_seats.Text = seatStatus.Where(x => x.Value == "").Count().ToString();
+        }
+
+        // Send seat updates to all connected clients
+        private void SendSeatUpdates()
+        {
+            while (true)
+            {
+                // Send seat status to all connected clients
+                foreach (Socket client in clients)
+                {
+                    try
+                    {
+                        // Create the seat update message (send the whole seatStatus)
+                        string seatUpdate = "";
+                        for (int i = 1; i <= 25; i++)
+                        {
+                            if (seatStatus[i] != "")
+                            {
+                                seatUpdate += $"{i},{seatStatus[i]};";
+                            }
+                        }
+
+                        // Send the update message to the client
+                        byte[] data = Encoding.ASCII.GetBytes(seatUpdate);
+                        client.Send(data);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Handle exceptions (e.g., client disconnect)
+                        MessageBox.Show("Error sending seat updates: " + ex.Message);
+                        // Remove the client from the list if connection is lost
+                        clients.Remove(client);
+                    }
+                }
+
+                // Wait for a short interval before sending the next update
+                Thread.Sleep(1000); // Update every 1 second
+            }
         }
 
         // Handle seat button click events for visual updates
