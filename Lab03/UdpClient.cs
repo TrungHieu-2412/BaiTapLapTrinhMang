@@ -42,7 +42,6 @@ namespace Lab03
                 MessageBox.Show($"Lỗi khi gửi tin nhắn: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         private bool IsPortValid(string portText, out int port)
         {
             // Kiểm tra xem port có phải là số hay không và không có khoảng trắng hoặc ký tự đặc biệt
