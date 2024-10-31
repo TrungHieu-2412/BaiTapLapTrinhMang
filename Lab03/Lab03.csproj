@@ -46,6 +46,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cinema_CLIENT.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Cinema_CLIENT.Designer.cs">
+      <DependentUpon>Cinema_CLIENT.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Cinema_SERVER.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Cinema_SERVER.Designer.cs">
+      <DependentUpon>Cinema_SERVER.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -84,11 +96,20 @@
     <Compile Include="UdpServer.Designer.cs">
       <DependentUpon>UdpServer.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Cinema_CLIENT.resx">
+      <DependentUpon>Cinema_CLIENT.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Cinema_SERVER.resx">
+      <DependentUpon>Cinema_SERVER.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Lab03-Bai01.resx">
       <DependentUpon>Lab03-Bai01.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab03-Bai05.resx">
+      <DependentUpon>Lab03-Bai05.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

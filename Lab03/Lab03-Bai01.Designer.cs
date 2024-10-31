@@ -34,9 +34,10 @@
             // 
             // btnStartServer
             // 
-            this.btnStartServer.Location = new System.Drawing.Point(106, 79);
+            this.btnStartServer.Location = new System.Drawing.Point(80, 64);
+            this.btnStartServer.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnStartServer.Name = "btnStartServer";
-            this.btnStartServer.Size = new System.Drawing.Size(110, 52);
+            this.btnStartServer.Size = new System.Drawing.Size(82, 42);
             this.btnStartServer.TabIndex = 0;
             this.btnStartServer.Text = "UDP Server";
             this.btnStartServer.UseVisualStyleBackColor = true;
@@ -44,9 +45,10 @@
             // 
             // btnStartClient
             // 
-            this.btnStartClient.Location = new System.Drawing.Point(411, 79);
+            this.btnStartClient.Location = new System.Drawing.Point(308, 64);
+            this.btnStartClient.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.btnStartClient.Name = "btnStartClient";
-            this.btnStartClient.Size = new System.Drawing.Size(110, 52);
+            this.btnStartClient.Size = new System.Drawing.Size(82, 42);
             this.btnStartClient.TabIndex = 1;
             this.btnStartClient.Text = "UDP Client";
             this.btnStartClient.UseVisualStyleBackColor = true;
@@ -54,13 +56,15 @@
             // 
             // Lab03_Bai01
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(642, 206);
+            this.ClientSize = new System.Drawing.Size(482, 167);
             this.Controls.Add(this.btnStartClient);
             this.Controls.Add(this.btnStartServer);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Lab03_Bai01";
             this.Text = "Lab03_Bai01";
+            this.Load += new System.EventHandler(this.Lab03_Bai01_Load);
             this.ResumeLayout(false);
 
         }

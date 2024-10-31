@@ -10,11 +10,31 @@ using System.Windows.Forms;
 
 namespace Lab03
 {
-    public partial class Lab03_Bai05 : Form
+    public partial class CINEMA_BOOK_TICKET : Form
     {
-        public Lab03_Bai05()
+        public CINEMA_BOOK_TICKET()
         {
             InitializeComponent();
+            btnStartClient.Click += new EventHandler(btnStartClient_Click);
+            btnStartServer.Click += new EventHandler(btnStartServer_Click);
+
+        }
+
+        private void CINEMA_BOOK_TICKET_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnStartServer_Click(object sender, EventArgs e)
+        {
+            Cinema_SERVER serverForm = new Cinema_SERVER();
+            serverForm.Show();
+        }
+
+        private void btnStartClient_Click(object sender, EventArgs e)
+        {
+            Cinema_CLIENT clientForm = new Cinema_CLIENT();
+            clientForm.Show();
         }
     }
 }
