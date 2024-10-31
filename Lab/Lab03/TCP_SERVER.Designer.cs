@@ -63,6 +63,7 @@
             this.Controls.Add(this.txt_Display);
             this.Name = "TCP_SERVER";
             this.Text = "TCP_SERVER";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TCP_SERVER_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

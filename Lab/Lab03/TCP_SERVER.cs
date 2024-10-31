@@ -35,7 +35,7 @@ namespace Lab03
             try
             {
                 int port = 8080;
-                string localIP = GetLocalIPAddress(); // Lấy địa chỉ IP tại đây
+                string localIP = GetLocalIPAddress();
                 tcpServer = new TcpListener(IPAddress.Parse(localIP), port);
                 tcpServer.Start();
                 isListening = true;
@@ -58,28 +58,47 @@ namespace Lab03
                 while (isListening)
                 {
                     TcpClient client = tcpServer.AcceptTcpClient();
-                    NetworkStream stream = client.GetStream();
-
-                    byte[] buffer = new byte[1024];
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-                    // Hiển thị message nhận được từ client lên giao diện hoặc xử lý tùy ý
-                    Console.WriteLine("Nhận được tin nhắn: " + message);
-
-                    // Phản hồi lại client (nếu cần)
-                    byte[] response = Encoding.UTF8.GetBytes("Server đã nhận tin nhắn của bạn.");
-                    stream.Write(response, 0, response.Length);
-
-                    client.Close();
+                    Thread clientThread = new Thread(() => HandleClient(client));
+                    clientThread.Start();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi trong quá trình lắng nghe: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (isListening)
+                {
+                    MessageBox.Show("Lỗi trong quá trình lắng nghe: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
+        private void HandleClient(TcpClient client)
+        {
+            try
+            {
+                NetworkStream stream = client.GetStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                // Hiển thị tin nhắn nhận được từ client lên giao diện
+                Invoke((MethodInvoker)(() =>
+                {
+                    Console.WriteLine("Nhận được tin nhắn: " + message);
+                }));
+
+                // Phản hồi lại client
+                byte[] response = Encoding.UTF8.GetBytes("Server đã nhận tin nhắn của bạn.");
+                stream.Write(response, 0, response.Length);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi xử lý client: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                client.Close();
+            }
+        }
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
@@ -90,14 +109,23 @@ namespace Lab03
                     return ip.ToString();
                 }
             }
-            throw new Exception("Không tìm thấy địa chỉ IP!");
+            throw new Exception("không tìm thấy địa chỉ IP!");
+        }
+        private void TCP_SERVER_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            CloseServer();
         }
 
-        private void TCP_Server_FormClosing(object sender, FormClosingEventArgs e)
+        private void CloseServer()
         {
-            isListening = false;
-            tcpServer?.Stop();
-            serverThread?.Join(); // Đảm bảo luồng server dừng lại trước khi đóng ứng dụng
+            if (isListening)
+            {
+                isListening = false;
+                tcpServer?.Stop();
+                serverThread?.Join(); // Đảm bảo luồng server kết thúc trước khi đóng ứng dụng
+
+                MessageBox.Show("Server đã được đóng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }
