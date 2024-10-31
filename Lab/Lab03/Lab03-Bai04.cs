@@ -16,5 +16,17 @@ namespace Lab03
         {
             InitializeComponent();
         }
+
+        private void btn_Open_Server_Click(object sender, EventArgs e)
+        {
+            TCP_SERVER tCP_SERVER = new TCP_SERVER();
+            tCP_SERVER.Show();
+        }
+
+        private void btn_Open_Client_Click(object sender, EventArgs e)
+        {
+            TCP_CLIENT tCP_CLIENT = new TCP_CLIENT();
+            tCP_CLIENT.Show();
+        }
     }
 }
