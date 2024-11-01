@@ -135,6 +135,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="TCP_CLIENT.resx">
+      <DependentUpon>TCP_CLIENT.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="TCP_SERVER.resx">
       <DependentUpon>TCP_SERVER.cs</DependentUpon>
     </EmbeddedResource>

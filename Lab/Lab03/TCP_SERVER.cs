@@ -17,6 +17,8 @@ namespace Lab03
     {
         private Thread serverThread;
         private TcpListener tcpServer;
+        private List<TcpClient> clients = new List<TcpClient>();
+        private Dictionary<TcpClient, string> clientNames = new Dictionary<TcpClient, string>();
         private bool isListening = false;
 
         public TCP_SERVER()
@@ -64,7 +66,7 @@ namespace Lab03
             }
             catch (Exception ex)
             {
-                if (isListening)
+                if (isListening) // Chỉ hiển thị lỗi nếu server đang lắng nghe
                 {
                     MessageBox.Show("Lỗi trong quá trình lắng nghe: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -77,18 +79,36 @@ namespace Lab03
             {
                 NetworkStream stream = client.GetStream();
                 byte[] buffer = new byte[1024];
-                int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                int bytesRead;
 
-                // Hiển thị tin nhắn nhận được từ client lên giao diện
-                Invoke((MethodInvoker)(() =>
+                // Lưu tên client
+                string clientName = null;
+                // Đọc dữ liệu gửi từ client
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    Console.WriteLine("Nhận được tin nhắn: " + message);
-                }));
+                    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    if (clientName == null)
+                    {
+                        clientName = message; // Lưu tên client khi nhận lần đầu
+                        clients.Add(client); // Thêm client vào danh sách
+                        clientNames[client] = clientName;
+                        Invoke((MethodInvoker)(() =>
+                        {
+                            txt_Display.AppendText($"{clientName} đã kết nối. \r\n");
+                        }));
 
-                // Phản hồi lại client
-                byte[] response = Encoding.UTF8.GetBytes("Server đã nhận tin nhắn của bạn.");
-                stream.Write(response, 0, response.Length);
+                        _ = BroadcastMessage($"{clientName} đang tham gia chat.", client);
+                    }
+                    else
+                    {
+                        // Hiển thị tin nhắn từ client lên txt_Display
+                        Invoke((MethodInvoker)(() =>
+                        {
+                            txt_Display.AppendText($"{message}\r\n");
+                        }));
+                        _ = BroadcastMessage($"{message}", client); // Gửi tin nhắn cho các client khác
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -96,9 +116,32 @@ namespace Lab03
             }
             finally
             {
+                if (clientNames.ContainsKey(client))
+                {
+                    string clientName = clientNames[client];
+                    clientNames.Remove(client);
+                    clients.Remove(client);
+                    Invoke((MethodInvoker)(() =>
+                    {
+                        txt_Display.AppendText($"{clientName} đã ngắt kết nối. \r\n");
+                    }));
+                }
                 client.Close();
             }
         }
+
+        private async Task BroadcastMessage(string message, TcpClient sender)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            foreach (var client in clients)
+            {
+                if (client != sender)
+                {
+                    await client.GetStream().WriteAsync(data, 0, data.Length);
+                }
+            }
+        }
+
         public static string GetLocalIPAddress()
         {
             var host = Dns.GetHostEntry(Dns.GetHostName());
