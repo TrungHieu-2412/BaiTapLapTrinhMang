@@ -121,33 +121,6 @@ namespace Lab03
             }
         }
 
-        private void btn_Send_File_Click(object sender, EventArgs e)
-        {
-            if (!isConnected)
-            {
-                MessageBox.Show("Chưa kết nối với server.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    try
-                    {
-                        byte[] fileData = System.IO.File.ReadAllBytes(openFileDialog.FileName);
-                        stream.Write(fileData, 0, fileData.Length);
-
-                        MessageBox.Show("Đã gửi file thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Lỗi khi gửi file: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-            }
-        }
-
         private void btn_Disconnect_Click(object sender, EventArgs e)
         {
             if (client != null && client.Connected)
@@ -164,11 +137,6 @@ namespace Lab03
 
         private void TCP_CLIENT_FormClosing(object sender, FormClosingEventArgs e)
         {
-            CloseConnection();
-        }
-
-        private void CloseConnection()
-        {
             if (isConnected)
             {
                 if (isConnected)
@@ -181,6 +149,7 @@ namespace Lab03
                 }
             }
         }
+
         private void AppendText(string text)
         {
             if (InvokeRequired)

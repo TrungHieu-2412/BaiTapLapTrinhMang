@@ -33,7 +33,6 @@
             this.txt_Message = new System.Windows.Forms.TextBox();
             this.btn_Connect = new System.Windows.Forms.Button();
             this.btn_Send = new System.Windows.Forms.Button();
-            this.btn_Send_File = new System.Windows.Forms.Button();
             this.btn_Disconnect = new System.Windows.Forms.Button();
             this.lbl_Your_Name = new System.Windows.Forms.Label();
             this.lbl_Message = new System.Windows.Forms.Label();
@@ -82,23 +81,11 @@
             this.btn_Send.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.btn_Send.Location = new System.Drawing.Point(557, 384);
             this.btn_Send.Name = "btn_Send";
-            this.btn_Send.Size = new System.Drawing.Size(75, 25);
+            this.btn_Send.Size = new System.Drawing.Size(75, 54);
             this.btn_Send.TabIndex = 4;
             this.btn_Send.Text = "Send";
             this.btn_Send.UseVisualStyleBackColor = false;
             this.btn_Send.Click += new System.EventHandler(this.btn_Send_Click);
-            // 
-            // btn_Send_File
-            // 
-            this.btn_Send_File.BackColor = System.Drawing.SystemColors.Highlight;
-            this.btn_Send_File.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.btn_Send_File.Location = new System.Drawing.Point(557, 415);
-            this.btn_Send_File.Name = "btn_Send_File";
-            this.btn_Send_File.Size = new System.Drawing.Size(75, 23);
-            this.btn_Send_File.TabIndex = 5;
-            this.btn_Send_File.Text = "Send File";
-            this.btn_Send_File.UseVisualStyleBackColor = false;
-            this.btn_Send_File.Click += new System.EventHandler(this.btn_Send_File_Click);
             // 
             // btn_Disconnect
             // 
@@ -157,7 +144,6 @@
             this.Controls.Add(this.lbl_Message);
             this.Controls.Add(this.lbl_Your_Name);
             this.Controls.Add(this.btn_Disconnect);
-            this.Controls.Add(this.btn_Send_File);
             this.Controls.Add(this.btn_Send);
             this.Controls.Add(this.btn_Connect);
             this.Controls.Add(this.txt_Message);
@@ -178,7 +164,6 @@
         private System.Windows.Forms.TextBox txt_Message;
         private System.Windows.Forms.Button btn_Connect;
         private System.Windows.Forms.Button btn_Send;
-        private System.Windows.Forms.Button btn_Send_File;
         private System.Windows.Forms.Button btn_Disconnect;
         private System.Windows.Forms.Label lbl_Your_Name;
         private System.Windows.Forms.Label lbl_Message;

@@ -156,11 +156,6 @@ namespace Lab03
         }
         private void TCP_SERVER_FormClosing(object sender, FormClosingEventArgs e)
         {
-            CloseServer();
-        }
-
-        private void CloseServer()
-        {
             if (isListening)
             {
                 isListening = false;
