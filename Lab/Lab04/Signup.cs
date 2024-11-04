@@ -10,24 +10,24 @@ using System.Windows.Forms;
 
 namespace Lab04
 {
-    public partial class Lab04_Bai06 : Form
+    public partial class Signup : Form
     {
-        public Lab04_Bai06()
+        public Signup()
         {
             InitializeComponent();
         }
 
-        private void btnSignup_Click(object sender, EventArgs e)
+        private void btnSubmit_Click(object sender, EventArgs e)
         {
-            Signup SignupForm = new Signup();
-            SignupForm.Show();
+            WhatToEat WhatToEatForm = new WhatToEat();
+            WhatToEatForm.Show();
             this.Close();
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private void BtnReturn_Click(object sender, EventArgs e)
         {
-            Login LoginForm = new Login();
-            LoginForm.Show();
+            Lab04_Bai06 Lab04_Bai06Form = new Lab04_Bai06();
+            Lab04_Bai06Form.Show();
             this.Close();
         }
     }
