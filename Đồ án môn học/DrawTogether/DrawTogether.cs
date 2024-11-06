@@ -111,5 +111,10 @@ namespace DrawTogether
             CanvaForm.Show();
             this.Hide();
         }
+
+        private void DrawTogether_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

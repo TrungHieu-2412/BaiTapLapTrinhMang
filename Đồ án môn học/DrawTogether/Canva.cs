@@ -362,5 +362,10 @@ namespace DrawTogether
                 MessageBox.Show("Không có hành động nào để hoàn tác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
+        private void Canva_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

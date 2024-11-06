@@ -14,8 +14,8 @@ public class ClientManager
     public ClientManager()
     {
         // Cấu hình kết nối đến server (IP address và port)
-        // Thay đổi IP address và port cho phù hợp với Web App trên Azure
-        serverEndPoint = new IPEndPoint(IPAddress.Parse("YOUR_SERVER_IP"), 12345);
+        // Thay đổi IP address và port cho phù hợp với Web App trên AWS
+        serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 12345);
     }
 
     public void JoinRoom(string roomCode, string userName)
