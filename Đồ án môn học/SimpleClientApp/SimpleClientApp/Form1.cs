@@ -27,7 +27,7 @@ namespace SimpleClientApp
 
         private void btnSendMessage_Click(object sender, EventArgs e)
         {
-            string serverIp = "54.242.93.0"; // Địa chỉ IP công khai của server
+            string serverIp = "100.27.231.216"; // Địa chỉ IP công khai của server
             int port = 9999; // Cổng server đang lắng nghe
 
             try

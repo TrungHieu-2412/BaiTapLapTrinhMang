@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Sockets;
-
+using System.Threading;
+using System.Windows.Forms;
+using DrawTogether.Client.Networking;
+using DrawTogether.Client.Model;
+using DrawTogether.Client.Room;
+using Newtonsoft.Json;
+using System.Runtime.Remoting.Contexts;
 namespace DrawTogether
 {
     public partial class Canva : Form
     {
-        private ClientManager clientManager;
-        private string roomCode;
-        private string userName;
         // Khởi tạo các giá trị cho bảng vẽ
         private Bitmap bitmap;                                   // Tạo vùng vẽ trên Canvas.
         private Graphics graphics;                               // Thao tác và vẽ lên Bitmap.
@@ -34,12 +34,29 @@ namespace DrawTogether
         private int brushSize = 5;                               // Kích thước mặc định của bút vẽ
         private Bitmap backupBitmap;                             // Để giữ bitmap trước khi thay đổi kích thước
         private Stack<Bitmap> bitmapHistory = new Stack<Bitmap>();
-        public Canva(ClientManager clientManager, string roomCode, string userName)
+        //Mạng 
+        private TcpClient client;
+        private StreamReader reader;
+        private StreamWriter wiriter;
+        private Packet Client_Information;
+        private IPEndPoint serverEndPoint;
+        private NetworkManager networkManager;
+
+        private bool isOffline;
+        private bool NewClient;
+
+        // Quản lý phòng và người dùng
+        private RoomManager roomManager;
+
+        // Ngữ cảnh đồng bộ hóa
+        private SynchronizationContext uiContext = SynchronizationContext.Current ?? new SynchronizationContext();
+
+
+        public Canva(bool IsOffline , int code, string Username, string Roomcode, string ServerIP)
         {
-            this.clientManager = clientManager;
-            this.roomCode = roomCode;
-            this.userName = userName;
+            
             InitializeComponent();
+
             // Kiểm tra xem Canvas đã được khởi tạo chưa
             if (Canvas == null)
             {
@@ -58,52 +75,230 @@ namespace DrawTogether
             this.ActiveControl = null;                         // Đảm bảo không có điều khiển nào được chọn mặc định khi form mở.
             this.Resize += new EventHandler(Form_Canva_Resize); // Lắng nghe sự kiện Resize
             this.Load += new System.EventHandler(this.Form_Canva_Load);
-            txtRoomCodeCanva.Text = roomCode;
-            txtPlayerName.Text = userName;
-            clientManager.DataReceived += ClientManager_DataReceived;
-        }
-        private void ClientManager_DataReceived(object sender, DataReceivedEventArgs e)
-        {
-            string data = e.Data;
-            // Xử lý dữ liệu nhận được từ server
-            if (data.StartsWith("RoomCode:"))
-            {
-                // Nhận room code từ server
-                roomCode = data.Substring(9);
-                // Hiển thị room code trên form DrawTogether
-                this.Invoke((MethodInvoker)delegate
-                {
-                    txtRoomCodeCanva.Text = roomCode; // Sử dụng txtRoomCodeCanva
-                });
-            }
-            else if (data.StartsWith("Players:"))
-            {
-                // Nhận danh sách người chơi từ server
-                List<string> players = data.Substring(8).Split(',').ToList();
-                // Hiển thị danh sách người chơi trên form DrawTogether
-                this.Invoke((MethodInvoker)delegate
-                {
-                    txtPlayerName.Text = string.Join(", ", players); // Sử dụng txtPlayerName
-                });
-            }
-            else if (data.StartsWith("Vẽ:"))
-            {
-                // Lấy thông tin từ data
-                string[] parts = data.Substring(3).Split(',');
-                int x1 = int.Parse(parts[0]);
-                int y1 = int.Parse(parts[1]);
-                Color color = Color.FromArgb(int.Parse(parts[2]));
-                int width = int.Parse(parts[3]);
 
-                // Vẽ nét vẽ trên Canvas
-                graphics.DrawLine(new Pen(color, width), new Point(x1, y1), new Point(x1 + 1, y1 + 1)); // Thay đổi cách vẽ để đồng bộ với server
-                Canvas.Invalidate();
+            Client_Information = new Packet()
+            {
+                Code = code,
+                Username = Username,
+                RoomID = Roomcode,
+
+            };
+
+            // Khởi tạo cờ trạng thái
+            this.isOffline = IsOffline;
+            // Khởi tạo mạng nếu hoạt động online
+            if (!isOffline)
+            {
+                txtRoomCodeCanva.Visible = true;
+                serverEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), 9999);
+                networkManager = new NetworkManager(serverEndPoint);
             }
-        }
-        public Canva()
-        {
+
+            // Khởi tạo quản lý phòng và người dùng
+            roomManager = new RoomManager(lisUserName, txtRoomCodeCanva);
+
+
         }
 
+        private void Form_Canva_Load(object sender, EventArgs e)
+        {
+            uiContext = SynchronizationContext.Current;
+
+            if (!isOffline)
+            {
+                // Kết nối với server
+                if (networkManager.Connect())
+                {
+                    // Gửi thông tin client đến server
+                    networkManager.Send(Client_Information);
+
+                    // Bắt đầu luồng lắng nghe 
+                    Thread listenThread = new Thread(Receive);
+                    listenThread.IsBackground = true;
+                    listenThread.Start();
+                }
+                else
+                {
+                    roomManager.ShowError("Can not connect to the server!");
+                    this.Close();
+                    return;
+                }
+            }
+
+            Canvas.Dock = DockStyle.Fill; // Panel sẽ tự động thay đổi kích thước theo Form
+            InitializeDrawingBitmap();
+            cbBrushSize.Items.AddRange(new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30 });
+            cbBrushSize.SelectedItem = 5; // Thiết lập mặc định là 5
+            cbBrushSize.SelectedIndexChanged += new EventHandler(cbBrushSize_SelectedIndexChanged); // Kết nối sự kiện thay đổi kích thước bút
+
+
+        }
+        private void Receive()
+        {
+            try
+            {
+                while (true)
+                {
+                    string responseInJson = reader.ReadLine();
+
+                    Packet response = JsonConvert.DeserializeObject<Packet>(responseInJson);
+
+                    switch (response.Code)
+                    {
+                        case 0:
+                            HandleGenerateRoomStatus(response);
+                            break;
+                        case 1:
+                            HandleJoinRoomStatus(response);
+                            break;
+                        case 2:
+                            HandleSyncBitmapStatus(response);
+                            break;
+                        case 3:
+                            HandleDrawBitmapStatus(response);
+                            break;
+                        case 4:
+                            HandleReceiveDrawingData(response);
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi kết nối
+                MessageBox.Show("Lỗi kết nối đến server: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                client.Close();
+            }
+        }
+        private void HandleGenerateRoomStatus(Packet response)
+        {
+            Client_Information.RoomID = response.RoomID;
+            roomManager.UpdateRoomID(Client_Information.RoomID);
+            NewClient = false;
+        }
+
+        private void HandleJoinRoomStatus(Packet response)
+        {
+            if (NewClient)
+            {
+                networkManager.Send(new Packet
+                {
+                    Code = 2,
+                    RoomID = response.RoomID,
+                });
+                NewClient = false;
+            }
+
+            if (response.Username == "err:thisroomdoesnotexist")
+            {
+                roomManager.ShowError("The room you requested does not exist");
+                client.Close();
+                this.Close();
+                return;
+            }
+
+            if (response.Username.Contains('!'))
+            {
+                roomManager.RemoveFromUserListView(response.Username.Substring(1));
+            }
+            else
+            {
+                List<string> list = response.Username.Split(',').ToList();
+                foreach (string username in list)
+                {
+                    if (username == Client_Information.Username)
+                    {
+                        list.Remove(username);
+                        break;
+                    }
+                }
+                roomManager.ClearUserListView();
+                foreach (string username in list)
+                {
+                    roomManager.AddToUserListView(username);
+                }
+            }
+        }
+
+        private void HandleSyncBitmapStatus(Packet response)
+        {
+            Packet message = new Packet
+            {
+                Code = 3,
+                RoomID = response.RoomID,
+                BitmapString = roomManager.BitmapToString(bitmap),
+            };
+            networkManager.Send(message);
+        }
+
+        private void HandleDrawBitmapStatus(Packet response)
+        {
+            Bitmap _bitmap = roomManager.StringToBitmap(response.BitmapString);
+            bitmap = _bitmap;
+            graphics = Graphics.FromImage(bitmap);
+            Canvas.Image = bitmap;
+            uiContext.Post(s =>
+            {
+                Canvas.Refresh();
+            }, null);
+        }
+        private void HandleReceiveDrawingData(Packet response)
+        {
+            // Tạo bút vẽ mới dựa trên dữ liệu nhận được
+            Pen p = new Pen(Color.FromName(response.PenColor), response.PenWidth);
+            PenOptimizer(p);
+
+            // Xử lý vẽ dựa trên ShapeTag
+            if (response.ShapeTag == 10) // Đường thẳng
+            {
+                // Vẽ lại đường thẳng trên Canvas
+                if (response.Points_1 != null && response.Points_2 != null && response.Points_1.Count == response.Points_2.Count)
+                {
+                    for (int i = 0; i < response.Points_1.Count; i++)
+                    {
+                        uiContext.Send(s =>
+                        {
+                            graphics.DrawLine(p, response.Points_1[i], response.Points_2[i]);
+                            Canvas.Refresh(); // Làm mới Canvas sau mỗi nét vẽ
+                        }, null);
+                    }
+                }
+            }
+            else
+            {
+                // Lấy tọa độ và kích thước từ response.Position
+                int cursorX = (int)response.Position[0];
+                int cursorY = (int)response.Position[1];
+                float w = response.Position[2];
+                float h = response.Position[3];
+
+                // Vẽ hình dạng dựa trên ShapeTag
+                if (response.ShapeTag == 11) // Đường thẳng
+                {
+                    uiContext.Send(s =>
+                    {
+                        graphics.DrawLine(p, cursorX, cursorY, cursorX + w, cursorY + h); // Sửa lại tọa độ điểm kết thúc
+                        Canvas.Refresh();
+                    }, null);
+                }
+                else if (response.ShapeTag == 12) // Hình chữ nhật
+                {
+                    uiContext.Send(s =>
+                    {
+                        graphics.DrawRectangle(p, cursorX, cursorY, w, h);
+                        Canvas.Refresh();
+                    }, null);
+                }
+                else if (response.ShapeTag == 13) // Hình elip
+                {
+                    uiContext.Send(s =>
+                    {
+                        graphics.DrawEllipse(p, cursorX, cursorY, w, h);
+                        Canvas.Refresh();
+                    }, null);
+                }
+            }
+        }
         private List<Tuple<Point, Point, Pen>> drawnLines = new List<Tuple<Point, Point, Pen>>(); // Lưu trữ các đường đã vẽ
         private void Form_Canva_Resize(object sender, EventArgs e)
         {
@@ -143,14 +338,6 @@ namespace DrawTogether
             pen.StartCap = System.Drawing.Drawing2D.LineCap.Round; // Đặt đầu bút tròn.
             pen.EndCap = System.Drawing.Drawing2D.LineCap.Round;   // Đặt cuối bút tròn.
         }
-        private void Form_Canva_Load(object sender, EventArgs e)
-        {
-            Canvas.Dock = DockStyle.Fill; // Panel sẽ tự động thay đổi kích thước theo Form
-            InitializeDrawingBitmap();
-            cbBrushSize.Items.AddRange(new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30 });
-            cbBrushSize.SelectedItem = 5; // Thiết lập mặc định là 5
-            cbBrushSize.SelectedIndexChanged += new EventHandler(cbBrushSize_SelectedIndexChanged); // Kết nối sự kiện thay đổi kích thước bút
-        }
         // Khởi tạo vùng vẽ ban đầu
         private void InitializeDrawingBitmap()
         {
@@ -167,22 +354,27 @@ namespace DrawTogether
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
         {
             SaveBitmapState();
+            cursorMoving = true;
+            cursorX = e.X;
+            cursorY = e.Y;
 
-            cursorMoving = true; // Bắt đầu vẽ.
-            cursorX = e.X; // Lưu tọa độ X của chuột khi bắt đầu nhấn.
-            cursorY = e.Y; // Lưu tọa độ Y của chuột khi bắt đầu nhấn.
+            // Lưu tọa độ điểm bắt đầu cho các hình dạng
+            if (shapeTag == 11 || shapeTag == 12 || shapeTag == 13)
+            {
+                cursorX = e.X;
+                cursorY = e.Y;
+            }
 
             if (isEraserMode)
             {
-                cursorPen = new Pen(Color.White, brushSize); // Nếu là tẩy thì dùng màu trắng
+                cursorPen = new Pen(Color.White, brushSize);
             }
-
             else
             {
-                cursorPen = new Pen(currentColor, brushSize); // Cập nhật bút vẽ với màu và kích thước hiện tại
+                cursorPen = new Pen(currentColor, brushSize);
             }
 
-            PenOptimizer(cursorPen); // Gọi hàm tối ưu hóa bút vẽ
+            PenOptimizer(cursorPen);
         }
 
         // Sự kiện khi di chuyển chuột trên Canvas
@@ -190,14 +382,13 @@ namespace DrawTogether
         {
             if (cursorMoving && shapeTag == 10)
             {
-                // Kiểm tra tọa độ chuột hiện tại có hợp lệ hay không
                 if (cursorX >= 0 && cursorY >= 0)
                 {
                     p = e.Location;
 
                     // Lưu tọa độ của đường vẽ vào danh sách các điểm
-                    points_1.Add(new Point(cursorX, cursorY)); // Lưu điểm đầu.
-                    points_2.Add(p); // Lưu điểm cuối.
+                    points_1.Add(new Point(cursorX, cursorY));
+                    points_2.Add(p);
 
                     // Vẽ đường từ điểm đầu tới điểm hiện tại
                     graphics.DrawLine(cursorPen, new Point(cursorX, cursorY), p);
@@ -219,12 +410,79 @@ namespace DrawTogether
         // Sự kiện khi thả chuột ra khỏi Canvas
         private void Canvas_MouseUp(object sender, MouseEventArgs e)
         {
-            cursorMoving = false; // Ngừng vẽ.
-            cursorX = -1;
-            cursorY = -1;
+            cursorMoving = false;
+            if (shapeTag == 11) // Đường thẳng
+            {
+                float w = e.X - cursorX;
+                float h = e.Y - cursorY;
 
-            // Làm mới Canvas để hiển thị hình vẽ mới.
-            Canvas.Invalidate();
+                Packet message = new Packet
+                {
+                    Code = 4,
+                    Username = Client_Information.Username,
+                    RoomID = Client_Information.RoomID,
+                    PenColor = cursorPen.Color.Name,
+                    PenWidth = cursorPen.Width,
+                    ShapeTag = shapeTag,
+                    Position = new float[] { cursorX, cursorY, w, h }
+                };
+
+                if (!isOffline)
+                {
+                    sendToServer(message);
+                }
+                uiContext.Send(s =>
+                {
+                    graphics.DrawLine(cursorPen, cursorX, cursorY, e.X, e.Y);
+                    Canvas.Refresh();
+                }, null);
+            }
+            else if (shapeTag == 12 || shapeTag == 13) // Hình chữ nhật và hình elip
+            {
+                float w = e.X - cursorX;
+                float h = e.Y - cursorY;
+
+                Packet message = new Packet
+                {
+                    Code = 4,
+                    Username = Client_Information.Username,
+                    RoomID = Client_Information.RoomID,
+                    PenColor = cursorPen.Color.Name,
+                    PenWidth = cursorPen.Width,
+                    ShapeTag = shapeTag,
+                    Position = new float[] { cursorX, cursorY, w, h }
+                };
+
+                if (!isOffline)
+                {
+                    sendToServer(message);
+                }
+                uiContext.Send(s =>
+                {
+                    if (shapeTag == 12)
+                    {
+                        graphics.DrawRectangle(cursorPen, cursorX, cursorY, w, h);
+                    }
+                    else if (shapeTag == 13)
+                    {
+                        graphics.DrawEllipse(cursorPen, cursorX, cursorY, w, h);
+                    }
+                    Canvas.Refresh();
+                }, null);
+            }
+        }
+        private void sendToServer(Packet message)
+        {
+            string messageInJson = JsonConvert.SerializeObject(message);
+            try
+            {
+                wiriter.WriteLine(messageInJson);
+                wiriter.Flush();
+            }
+            catch
+            {
+                roomManager.ShowError("Failed to send data to server!");
+            }
         }
 
         // Sự kiện khi chọn màu vẽ
@@ -260,16 +518,63 @@ namespace DrawTogether
             PenOptimizer(cursorPen); // Tối ưu hóa bút vẽ
             btnEraser.Enabled = false; // Vô hiệu hóa nút tẩy khi đang chọn
             btnDrawing.Enabled = true; // Kích hoạt nút vẽ
+            btnLine.Enabled = true;
+            btnEllipse.Enabled = true;
+            btnRectangle.Enabled = true;
         }
 
         // Sự kiện khi nhấn nút Drawing (Vẽ)
         private void btnDrawing_Click(object sender, EventArgs e)
         {
+            shapeTag = 10;
             isEraserMode = false; // Quay lại chế độ vẽ
             cursorPen = new Pen(currentColor, brushSize); // Đặt lại màu của bút vẽ và kích thước bút
             PenOptimizer(cursorPen); // Tối ưu hóa bút vẽ
-            btnDrawing.Enabled = false; // Vô hiệu hóa nút vẽ khi đang chọn
-            btnEraser.Enabled = true; // Kích hoạt lại nút tẩy
+            btnDrawing.Enabled = false;
+            btnEraser.Enabled = true; 
+            btnLine.Enabled = true;
+            btnEllipse.Enabled = true;
+            btnRectangle.Enabled = true;
+        }
+
+        private void btnLine_Click(object sender, EventArgs e)
+        {
+            shapeTag = 11;
+            isEraserMode = false; // Quay lại chế độ vẽ
+            cursorPen = new Pen(currentColor, brushSize); // Đặt lại màu của bút vẽ và kích thước bút
+            PenOptimizer(cursorPen); // Tối ưu hóa bút vẽ
+            btnDrawing.Enabled = true;
+            btnEraser.Enabled = true;
+            btnRectangle.Enabled = true;
+            btnEllipse.Enabled = true;
+            btnLine.Enabled = false;
+        }
+
+        private void btnRectangle_Click(object sender, EventArgs e)
+        {
+            shapeTag = 12;
+            isEraserMode = false; // Quay lại chế độ vẽ
+            cursorPen = new Pen(currentColor, brushSize); // Đặt lại màu của bút vẽ và kích thước bút
+            PenOptimizer(cursorPen); // Tối ưu hóa bút vẽ
+            btnDrawing.Enabled = true;
+            btnEraser.Enabled = true;
+            btnLine.Enabled = true;
+            btnEllipse.Enabled = true;
+            btnRectangle.Enabled = false;
+        }
+
+        private void btnEllipse_Click(object sender, EventArgs e)
+        {
+            shapeTag = 13;
+            isEraserMode = false; // Quay lại chế độ vẽ
+            cursorPen = new Pen(currentColor, brushSize); // Đặt lại màu của bút vẽ và kích thước bút
+            PenOptimizer(cursorPen); // Tối ưu hóa bút vẽ
+            btnDrawing.Enabled = true;
+            btnEraser.Enabled = true;
+            btnLine.Enabled = true;
+            btnRectangle.Enabled = true;
+            btnEllipse.Enabled = false;
+
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)

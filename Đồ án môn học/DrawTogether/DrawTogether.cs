@@ -1,32 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Windows.Forms;
+using DrawTogether.Client.Networking;
+using DrawTogether.Client.Model;
+using DrawTogether.Client.Room;
+using Newtonsoft.Json;
+using System.Runtime.Remoting.Contexts;
 
 namespace DrawTogether
 {
     public partial class DrawTogether : Form
     {
+        private bool isOffline;
+        public bool IsCreateRoom { get; private set; }
         public string UserName { get; private set; }
         public string RoomCode { get; private set; }
-        public bool IsCreateRoom { get; private set; }
-        private ClientManager clientManager;
-        private Canva CanvaForm;
+        public string ServerIP { get; private set; }
 
         public DrawTogether()
         {
             InitializeComponent();
             // Ẩn các control khi chưa chọn chế độ online/offline
             HideOnlineControls();
-            // Khởi tạo ClientManager
-            clientManager = new ClientManager();
         }
 
         private void HideOnlineControls()
@@ -39,7 +41,8 @@ namespace DrawTogether
             txtRoomCode.Visible = false;
             btnStart.Visible = false;
             btnBack.Visible = false;
-            
+            lblServerIP.Visible = false;
+            txtServerIP.Visible = false;
         }
 
         private void ShowOnlineControls()
@@ -52,13 +55,15 @@ namespace DrawTogether
             txtRoomCode.Visible = true;
             btnStart.Visible = true;
             btnBack.Visible = true;
-            
+            lblServerIP.Visible = true;
+            txtServerIP.Visible = true;
         }
 
         private void btnOffline_Click(object sender, EventArgs e)
         {
-            Canva CanvaForm = new Canva();
-            CanvaForm.FormClosed += (s, args) => this.Show(); // Hiển thị lại form cũ khi form mới đóng
+            // Mở form Canva ở chế độ offline
+            Canva CanvaForm = new Canva(true, 0, "", "", "");
+            CanvaForm.FormClosed += (s, args) => this.Show();
             CanvaForm.Show();
             this.Hide();
         }
@@ -79,42 +84,51 @@ namespace DrawTogether
 
         private void btnCreateRoom_Click(object sender, EventArgs e)
         {
-            IsCreateRoom = true; // Đánh dấu chế độ tạo phòng
-            btnStart.Text = "Tạo Phòng"; // Đổi tên nút Start
+            IsCreateRoom = true;
+            btnStart.Text = "Create Room";
         }
 
         private void btnJoinRoom_Click(object sender, EventArgs e)
         {
-            IsCreateRoom = false; // Đánh dấu chế độ tham gia phòng
-            btnStart.Text = "Tham Gia"; // Đổi tên nút Start
+            IsCreateRoom = false;
+            btnStart.Text = "Join Room";
         }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
             UserName = txtName.Text;
+            ServerIP = txtServerIP.Text;
+
+            if (string.IsNullOrEmpty(UserName))
+            {
+                MessageBox.Show("Vui lòng nhập tên người dùng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             if (IsCreateRoom)
             {
-                // Gửi yêu cầu tạo phòng đến server
-                clientManager.JoinRoom("", UserName);
+                // Mở form Canva ở chế độ online, tạo phòng
+                Canva CanvaForm = new Canva(false, 0, UserName, "", ServerIP);
+                CanvaForm.FormClosed += (s, args) => this.Show();
+                CanvaForm.Show();
+                this.Hide();
             }
             else
             {
                 RoomCode = txtRoomCode.Text;
-                // Gửi yêu cầu tham gia phòng đến server
-                clientManager.JoinRoom(RoomCode, UserName);
+
+                if (string.IsNullOrEmpty(RoomCode))
+                {
+                    MessageBox.Show("Vui lòng nhập mã phòng.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Mở form Canva ở chế độ online, tham gia phòng
+                Canva CanvaForm = new Canva(false, 1, UserName, RoomCode, ServerIP);
+                CanvaForm.FormClosed += (s, args) => this.Show();
+                CanvaForm.Show();
+                this.Hide();
             }
-
-            // Mở form Canva và truyền dữ liệu
-            CanvaForm = new Canva(clientManager, RoomCode, UserName);
-            CanvaForm.FormClosed += (s, args) => this.Show(); // Hiển thị lại form cũ khi form mới đóng
-            CanvaForm.Show();
-            this.Hide();
-        }
-
-        private void DrawTogether_Load(object sender, EventArgs e)
-        {
-
         }
     }
 }
