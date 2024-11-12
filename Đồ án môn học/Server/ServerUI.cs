@@ -37,13 +37,16 @@ namespace Server
         }
         private void btnStartServer_Click(object sender, EventArgs e)
         {
-            networkManager.StartServer(int.Parse(txtPort.Text));
-            lisInformation.Text = "Server đang chạy...";
+            int port = int.Parse(txtPort.Text); // Lấy port từ textbox
+            networkManager.StartServer(port);
+            lisInformation.Items.Add($"Server đang chạy trên cổng {port}...");
         }
 
         private void ServerUI_Load (object sender, EventArgs e)
         {
-            lisInformation.Text = "Server chưa chạy";
+            lisInformation.Items.Add("Server chưa chạy...");
         }
+
+      
     }
 }

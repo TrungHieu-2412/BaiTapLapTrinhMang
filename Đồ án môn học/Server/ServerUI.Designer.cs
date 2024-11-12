@@ -52,7 +52,7 @@
             // 
             this.btnStartServer.BackColor = System.Drawing.Color.Cyan;
             this.btnStartServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStartServer.Location = new System.Drawing.Point(39, 27);
+            this.btnStartServer.Location = new System.Drawing.Point(39, 72);
             this.btnStartServer.Name = "btnStartServer";
             this.btnStartServer.Size = new System.Drawing.Size(145, 65);
             this.btnStartServer.TabIndex = 1;
@@ -64,7 +64,7 @@
             // 
             this.btnStopServer.BackColor = System.Drawing.Color.Cyan;
             this.btnStopServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStopServer.Location = new System.Drawing.Point(39, 141);
+            this.btnStopServer.Location = new System.Drawing.Point(39, 167);
             this.btnStopServer.Name = "btnStopServer";
             this.btnStopServer.Size = new System.Drawing.Size(145, 65);
             this.btnStopServer.TabIndex = 2;

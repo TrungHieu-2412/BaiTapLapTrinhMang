@@ -25,15 +25,28 @@ namespace Server
 
         public void StartServer(int port)
         {
-            listener = new TcpListener(IPAddress.Any, port);
-            listener.Start();
-            Console.WriteLine("Server đang chạy trên cổng {0}", port);
+            if (listener != null) 
+            {
+                listener.Stop(); // Dừng listener cũ
+                Console.WriteLine("Server đã dừng.");
+            }
 
+            // Khởi tạo listener mới
+            listener = new TcpListener(IPAddress.Any, port);
+
+            try
+            {
+                listener.Start();
+                Console.WriteLine("Server đang chạy trên cổng {0}", port);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi khởi động server: " + ex.Message); 
+            }
             // Bắt đầu luồng lắng nghe kết nối
             Thread listenThread = new Thread(ListenForClients);
             listenThread.Start();
         }
-
         private void ListenForClients()
         {
             while (true)
@@ -45,6 +58,11 @@ namespace Server
                 // Tạo luồng xử lý cho client
                 ClientHandler handler = new ClientHandler(client, roomManager, this);
                 clients.Add(handler);
+
+                // Khởi tạo reader và writer cho ClientHandler
+                handler.reader = new StreamReader(client.GetStream());
+                handler.writer = new StreamWriter(client.GetStream());
+
                 Thread clientThread = new Thread(handler.HandleClient);
                 clientThread.Start();
             }
@@ -99,8 +117,13 @@ namespace Server
         private TcpClient client;
         private RoomManager roomManager;
         private NetworkManager networkManager;
-        private StreamReader reader;
-        private StreamWriter writer;
+        //private StreamReader reader;
+        public StreamWriter writer;
+        public StreamReader reader
+        {
+            get { return reader; }
+            set { reader = value; }
+        }
         public string Username { get; private set; }
         public string RoomID { get; set; }
         public User User { get; set; }
@@ -134,19 +157,19 @@ namespace Server
 
                     switch (packet.Code)
                     {
-                        case 0:
+                        case 0:  // Tạo phòng
                             HandleGenerateRoom(packet);
                             break;
-                        case 1:
+                        case 1:  // Tham gia phòng
                             HandleJoinRoom(packet);
                             break;
-                        case 2:
+                        case 2:  // Đồng bộ Bitmap
                             HandleSyncBitmap(packet);
                             break;
-                        case 3:
+                        case 3:  // Vẽ Bitmap
                             HandleDrawBitmap(packet);
                             break;
-                        case 4:
+                        case 4:  // Nhận dữ liệu vẽ
                             HandleReceiveDrawingData(packet);
                             break;
                     }
@@ -162,6 +185,12 @@ namespace Server
                 networkManager.RemoveClient(this);
                 client.Close();
             }
+        }
+
+        private void HandleReceiveDrawingData(Packet packet)
+        {
+            // Gửi dữ liệu vẽ đến các client khác trong cùng phòng
+            networkManager.Broadcast(packet, this);
         }
 
         private void HandleGenerateRoom(Packet packet)
@@ -230,12 +259,6 @@ namespace Server
                 BitmapString = packet.BitmapString,
             };
             networkManager.Broadcast(response, this);
-        }
-
-        private void HandleReceiveDrawingData(Packet packet)
-        {
-            // Gửi dữ liệu vẽ đến các client khác trong cùng phòng
-            networkManager.Broadcast(packet, this);
         }
 
         public void Send(Packet packet)

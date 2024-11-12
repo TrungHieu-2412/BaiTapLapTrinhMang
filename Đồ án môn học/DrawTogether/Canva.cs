@@ -64,13 +64,14 @@ namespace DrawTogether
             }
 
             // Tạo bảng vẽ và bút
-            bitmap = new Bitmap(Canvas.Width, Canvas.Height);  // Tạo một Bitmap với kích thước của Canvas.
+            Bitmap bitmap = new Bitmap(Canvas.Width, Canvas.Height);  // Tạo một Bitmap với kích thước của Canvas.
             graphics = Graphics.FromImage(bitmap);             // Tạo đối tượng Graphics từ Bitmap để vẽ lên đó.
             graphics.Clear(Color.White);                       // Làm sạch vùng vẽ, đặt màu nền là trắng.
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; // Bật chế độ vẽ mượt mà để các nét vẽ trông mềm mại hơn.
             Canvas.Image = bitmap;                             // Hiển thị Bitmap lên Canvas.
             stateColor = Color.Black;                          // Đặt màu mặc định của bút vẽ là màu đen.
             cursorPen = new Pen(stateColor, 2);                // Tạo một đối tượng Pen với màu đen và độ rộng 2px.
+            graphics.DrawImage(bitmap, new Point(0, 0));
             PenOptimizer(cursorPen);                           // Gọi hàm PenOptimizer để tối ưu hóa bút vẽ.
             this.ActiveControl = null;                         // Đảm bảo không có điều khiển nào được chọn mặc định khi form mở.
             this.Resize += new EventHandler(Form_Canva_Resize); // Lắng nghe sự kiện Resize
@@ -92,6 +93,23 @@ namespace DrawTogether
                 txtRoomCodeCanva.Visible = true;
                 serverEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), 9999);
                 networkManager = new NetworkManager(serverEndPoint);
+                if (networkManager.Connect())
+                {
+                    // Gửi thông tin client đến server
+                    networkManager.Send(Client_Information);
+
+                    // Bắt đầu luồng lắng nghe 
+                    Thread listenThread = new Thread(Receive);
+                    listenThread.IsBackground = true;
+                    listenThread.Start();
+                }
+                else
+                {
+                    // Hiển thị thông báo lỗi
+                    roomManager.ShowError("Can not connect to the server!");
+                    this.Close();
+                    return;
+                }
             }
 
             // Khởi tạo quản lý phòng và người dùng
@@ -106,6 +124,8 @@ namespace DrawTogether
 
             if (!isOffline)
             {
+                networkManager = new NetworkManager(serverEndPoint);
+
                 // Kết nối với server
                 if (networkManager.Connect())
                 {
@@ -145,19 +165,19 @@ namespace DrawTogether
 
                     switch (response.Code)
                     {
-                        case 0:
+                        case 0:// Trạng thái tạo phòng
                             HandleGenerateRoomStatus(response);
                             break;
-                        case 1:
+                        case 1:// Trạng thái tham gia phòng
                             HandleJoinRoomStatus(response);
                             break;
-                        case 2:
+                        case 2:// Đồng bộ Bitmap
                             HandleSyncBitmapStatus(response);
                             break;
-                        case 3:
+                        case 3:// Vẽ Bitmap
                             HandleDrawBitmapStatus(response);
                             break;
-                        case 4:
+                        case 4:// Nhận dữ liệu vẽ
                             HandleReceiveDrawingData(response);
                             break;
                     }

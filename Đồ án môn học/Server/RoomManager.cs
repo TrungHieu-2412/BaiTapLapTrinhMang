@@ -26,6 +26,15 @@ namespace DrawTogether.Server
             if (RoomExists(roomID))
             {
                 rooms[roomID].AddClient(client);
+
+                // Gửi bitmap hiện tại của phòng cho client mới
+                Packet syncPacket = new Packet
+                {
+                    Code = 2,
+                    RoomID = roomID,
+                    BitmapString = rooms[roomID].BitmapToString(rooms[roomID].Bitmap)
+                };
+                client.Send(syncPacket);
             }
         }
 
