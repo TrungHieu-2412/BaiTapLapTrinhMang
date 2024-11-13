@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
 namespace Lab04
 {
     public partial class Login : Form
@@ -17,18 +16,34 @@ namespace Lab04
             InitializeComponent();
         }
 
-        private void btnLogin_Click(object sender, EventArgs e)
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
-            WhatToEat WhatToEatForm = new WhatToEat();
-            WhatToEatForm.Show();
-            this.Close();
+            string email = textBox1.Text;
+            string password = textBox2.Text;
+
+            ApiHelper apiHelper = new ApiHelper();
+            var token = await apiHelper.Login(email, password);
+
+            if (token != null)
+            {
+                // Lưu token vào biến toàn cục hoặc session
+                GlobalVariables.AccessToken = token.AccessToken;
+
+                WhatToEat WhatToEatForm = new WhatToEat();
+                WhatToEatForm.Show();
+                this.Hide();
+            }
+            else
+            {
+                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnRTSignup_Click(object sender, EventArgs e)
         {
             Signup SignupForm = new Signup();
             SignupForm.Show();
-            this.Close();
+            this.Hide();
         }
     }
 }

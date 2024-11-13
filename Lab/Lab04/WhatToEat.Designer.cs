@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.label1 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnChoose = new System.Windows.Forms.Button();
+            this.btnAddDishes = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
@@ -38,8 +38,12 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnLogout = new System.Windows.Forms.Button();
+            this.listViewDishes = new System.Windows.Forms.ListView();
+            this.listView2 = new System.Windows.Forms.ListView();
             this.tabControl1.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -49,30 +53,30 @@
             this.label1.ForeColor = System.Drawing.Color.Red;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(320, 39);
+            this.label1.Size = new System.Drawing.Size(311, 38);
             this.label1.TabIndex = 0;
             this.label1.Text = "HÔM NAY ĂN GÌ ?";
             // 
-            // button1
+            // btnChoose
             // 
-            this.button1.BackColor = System.Drawing.Color.Moccasin;
-            this.button1.Location = new System.Drawing.Point(429, 63);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(114, 36);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Ăn gì giờ ?";
-            this.button1.UseVisualStyleBackColor = false;
+            this.btnChoose.BackColor = System.Drawing.Color.Moccasin;
+            this.btnChoose.Location = new System.Drawing.Point(429, 63);
+            this.btnChoose.Name = "btnChoose";
+            this.btnChoose.Size = new System.Drawing.Size(114, 36);
+            this.btnChoose.TabIndex = 1;
+            this.btnChoose.Text = "Ăn gì giờ ?";
+            this.btnChoose.UseVisualStyleBackColor = false;
             // 
-            // button2
+            // btnAddDishes
             // 
-            this.button2.BackColor = System.Drawing.Color.Moccasin;
-            this.button2.Location = new System.Drawing.Point(549, 63);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(114, 36);
-            this.button2.TabIndex = 2;
-            this.button2.Text = "Thêm món ăn";
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.btnAddDishes.BackColor = System.Drawing.Color.Moccasin;
+            this.btnAddDishes.Location = new System.Drawing.Point(549, 63);
+            this.btnAddDishes.Name = "btnAddDishes";
+            this.btnAddDishes.Size = new System.Drawing.Size(114, 36);
+            this.btnAddDishes.TabIndex = 2;
+            this.btnAddDishes.Text = "Thêm món ăn";
+            this.btnAddDishes.UseVisualStyleBackColor = false;
+            this.btnAddDishes.Click += new System.EventHandler(this.btnAddDishes_Click);
             // 
             // comboBox1
             // 
@@ -102,6 +106,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.listViewDishes);
             this.tabPage1.Location = new System.Drawing.Point(4, 25);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -112,6 +117,7 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.listView2);
             this.tabPage2.Location = new System.Drawing.Point(4, 25);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -138,33 +144,56 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "Page size";
             // 
-            // button3
+            // btnLogout
             // 
-            this.button3.BackColor = System.Drawing.Color.Moccasin;
-            this.button3.Location = new System.Drawing.Point(40, 514);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(75, 30);
-            this.button3.TabIndex = 8;
-            this.button3.Text = "Logout";
-            this.button3.UseVisualStyleBackColor = false;
+            this.btnLogout.BackColor = System.Drawing.Color.Moccasin;
+            this.btnLogout.Location = new System.Drawing.Point(40, 514);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(75, 30);
+            this.btnLogout.TabIndex = 8;
+            this.btnLogout.Text = "Logout";
+            this.btnLogout.UseVisualStyleBackColor = false;
+            // 
+            // listViewDishes
+            // 
+            this.listViewDishes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listViewDishes.HideSelection = false;
+            this.listViewDishes.Location = new System.Drawing.Point(3, 3);
+            this.listViewDishes.Name = "listViewDishes";
+            this.listViewDishes.Size = new System.Drawing.Size(617, 339);
+            this.listViewDishes.TabIndex = 0;
+            this.listViewDishes.UseCompatibleStateImageBehavior = false;
+            // 
+            // listView2
+            // 
+            this.listView2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView2.HideSelection = false;
+            this.listView2.Location = new System.Drawing.Point(3, 3);
+            this.listView2.Name = "listView2";
+            this.listView2.Size = new System.Drawing.Size(617, 339);
+            this.listView2.TabIndex = 0;
+            this.listView2.UseCompatibleStateImageBehavior = false;
             // 
             // WhatToEat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.ClientSize = new System.Drawing.Size(703, 556);
-            this.Controls.Add(this.button3);
+            this.Controls.Add(this.btnLogout);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.comboBox1);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnAddDishes);
+            this.Controls.Add(this.btnChoose);
             this.Controls.Add(this.label1);
             this.Name = "WhatToEat";
             this.Text = "WhatToEat";
             this.tabControl1.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -173,8 +202,8 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnChoose;
+        private System.Windows.Forms.Button btnAddDishes;
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.ComboBox comboBox2;
         private System.Windows.Forms.TabControl tabControl1;
@@ -182,6 +211,8 @@
         private System.Windows.Forms.TabPage tabPage2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnLogout;
+        private System.Windows.Forms.ListView listViewDishes;
+        private System.Windows.Forms.ListView listView2;
     }
 }

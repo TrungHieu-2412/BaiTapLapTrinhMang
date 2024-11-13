@@ -53,7 +53,7 @@
             this.label1.ForeColor = System.Drawing.Color.Black;
             this.label1.Location = new System.Drawing.Point(162, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(238, 39);
+            this.label1.Size = new System.Drawing.Size(228, 38);
             this.label1.TabIndex = 0;
             this.label1.Text = "ADD DISHES";
             // 
@@ -187,7 +187,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-           // this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
+            this.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("$this.BackgroundImage")));
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(534, 509);
             this.Controls.Add(this.btnReturn);

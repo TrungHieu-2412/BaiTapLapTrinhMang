@@ -38,6 +38,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Text.Json, Version=8.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,12 +56,14 @@
     <Compile Include="AddDishes.Designer.cs">
       <DependentUpon>AddDishes.cs</DependentUpon>
     </Compile>
+    <Compile Include="ApiHelper.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="GlobalVariables.cs" />
     <Compile Include="Lab04-Bai04.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +94,7 @@
     <Compile Include="Login.Designer.cs">
       <DependentUpon>Login.cs</DependentUpon>
     </Compile>
+    <Compile Include="MonAn.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Signup.cs">
@@ -99,12 +103,17 @@
     <Compile Include="Signup.Designer.cs">
       <DependentUpon>Signup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Token.cs" />
+    <Compile Include="UserCreate.cs" />
     <Compile Include="WhatToEat.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="WhatToEat.Designer.cs">
       <DependentUpon>WhatToEat.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AddDishes.resx">
+      <DependentUpon>AddDishes.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -113,6 +122,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Lab04-Bai05.resx">
       <DependentUpon>Lab04-Bai05.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Lab04-Bai06.resx">
+      <DependentUpon>Lab04-Bai06.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Login.resx">
+      <DependentUpon>Login.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -123,6 +138,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="Signup.resx">
+      <DependentUpon>Signup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WhatToEat.resx">
+      <DependentUpon>WhatToEat.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
