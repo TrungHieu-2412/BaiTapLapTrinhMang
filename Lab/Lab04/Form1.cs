@@ -19,20 +19,30 @@ namespace Lab04
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Lab04_Bai123 bai123Form = new Lab04_Bai123();
-            bai123Form.Show();
+            Lab04_Bai123 Bai123Form = new Lab04_Bai123();
+            Bai123Form.Show();
+            this.Hide();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            Lab04_Bai45 bai45Form = new Lab04_Bai45();
-            bai45Form.Show();
+            Lab04_Bai04 Bai04Form = new Lab04_Bai04();
+            Bai04Form.Show();
+            this.Hide();
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            Lab04_Bai06 bai06Forn = new Lab04_Bai06();
-            bai06Forn.Show();
+            Lab04_Bai05 Bai05Form = new Lab04_Bai05();
+            Bai05Form.Show();
+            this.Hide();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            Lab04_Bai06 Bai06Form = new Lab04_Bai06();
+            Bai06Form.Show();
+            this.Hide();
         }
     }
 }
