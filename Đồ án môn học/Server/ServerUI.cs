@@ -1,52 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
+using System.Linq;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using DrawTogether.Server;
-
+using System.Drawing;
 
 namespace Server
 {
     public partial class ServerUI : Form
     {
-        private NetworkManager networkManager;
+        private ServerNetworkManager networkManager;
         private RoomManager roomManager;
         private TextBox txtPort;
-        //private TextBox txtCountRoom;
-        //private TextBox txtCountUser;
+
         public ServerUI()
         {
             InitializeComponent();
-            networkManager = new NetworkManager();
-            roomManager = new RoomManager();
-
+            networkManager = new ServerNetworkManager(this); // Truyền this (ServerUI) vào constructor của NetworkManager
+            roomManager = new RoomManager(networkManager);
             txtPort = new TextBox();
             txtPort.Location = new Point(10, 10);
-            txtPort.Text = "9999"; // Gán giá trị mặc định
+            txtPort.Text = "9999";
             this.Controls.Add(txtPort);
 
+            
         }
+
         private void btnStartServer_Click(object sender, EventArgs e)
         {
-            int port = int.Parse(txtPort.Text); // Lấy port từ textbox
+            int port = int.Parse(txtPort.Text);
             networkManager.StartServer(port);
-            lisInformation.Items.Add($"Server đang chạy trên cổng {port}...");
+            txtInformation.Text += $"Server đang chạy trên cổng {port}...\r\n";
         }
 
-        private void ServerUI_Load (object sender, EventArgs e)
+        // Hàm cập nhật thông tin lên TextBox
+        public void UpdateInformation(string message)
         {
-            lisInformation.Items.Add("Server chưa chạy...");
+            if (txtInformation.InvokeRequired)
+            {
+                txtInformation.Invoke(new Action(() =>
+                {
+                    txtInformation.Text += message + "\r\n";
+                }));
+            }
+            else
+            {
+                txtInformation.Text += message + "\r\n";
+            }
         }
-
-      
     }
 }

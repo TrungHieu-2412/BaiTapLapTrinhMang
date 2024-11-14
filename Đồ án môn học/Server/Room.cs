@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DrawTogether.Server
+namespace Server
 {
     public class Room
     {
@@ -16,12 +16,14 @@ namespace DrawTogether.Server
         private Bitmap bitmap;
         private List<ClientHandler> clients = new List<ClientHandler>();
         private Stack<Bitmap> bitmapHistory = new Stack<Bitmap>();
+        private ServerNetworkManager networkManager;
 
-        public Room(string roomID)
+        public Room(string roomID, ServerNetworkManager networkManager) // Thêm tham số networkManager vào constructor
         {
             this.roomID = roomID;
+            this.networkManager = networkManager;
             this.bitmap = new Bitmap(1024, 768); // Khởi tạo bitmap ban đầu với kích thước mặc định
-            bitmapHistory.Push((Bitmap)bitmap.Clone()); // Lưu bitmap ban đầu vào lịch sử
+            bitmapHistory.Push((Bitmap)bitmap.Clone());
         }
 
         public string RoomID { get { return roomID; } }

@@ -1,21 +1,38 @@
-﻿using Server;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Net;
+using System.Net.Sockets;
+using DrawTogether.Server;
 
-namespace DrawTogether.Server
+
+namespace Server
 {
     public class RoomManager
     {
         private Dictionary<string, Room> rooms = new Dictionary<string, Room>();
+        private ServerNetworkManager networkManager; // Thêm thuộc tính networkManager
+
+        public RoomManager(ServerNetworkManager networkManager) // Thêm tham số networkManager vào constructor
+        {
+            this.networkManager = networkManager;
+        }
+
+        public RoomManager()
+        {
+        }
 
         public string CreateRoom(User user)
         {
             // Tạo phòng mới
             string roomID = Guid.NewGuid().ToString();
-            Room room = new Room(roomID);
+            Room room = new Room(roomID, networkManager); // Truyền networkManager vào constructor của Room
             rooms.Add(roomID, room);
             return roomID;
         }
@@ -27,23 +44,33 @@ namespace DrawTogether.Server
             {
                 rooms[roomID].AddClient(client);
 
-                // Gửi bitmap hiện tại của phòng cho client mới
-                Packet syncPacket = new Packet
+                // Cập nhật danh sách người dùng cho tất cả các client trong phòng
+                string usernames = string.Join(",", rooms[roomID].GetUsers().Select(u => u.Username));
+                Packet updatePacket = new Packet
                 {
-                    Code = 2,
-                    RoomID = roomID,
-                    BitmapString = rooms[roomID].BitmapToString(rooms[roomID].Bitmap)
+                    Code = 1,
+                    Username = usernames,
+                    RoomID = roomID
                 };
-                client.Send(syncPacket);
+                networkManager.Broadcast(updatePacket, client);
             }
         }
 
         public void RemoveClientFromRoom(string roomID, ClientHandler client)
         {
-            // Xóa client khỏi phòng
             if (RoomExists(roomID))
             {
                 rooms[roomID].RemoveClient(client);
+
+                // Cập nhật danh sách người dùng cho tất cả các client trong phòng
+                string usernames = string.Join(",", rooms[roomID].GetUsers().Select(u => u.Username));
+                Packet updatePacket = new Packet
+                {
+                    Code = 1,
+                    Username = usernames,
+                    RoomID = roomID
+                };
+                networkManager.Broadcast(updatePacket, client);
             }
         }
 
@@ -67,6 +94,15 @@ namespace DrawTogether.Server
         public int GetRoomCount()
         {
             return rooms.Count;
+        }
+
+        public Room GetRoom(string roomID)
+        {
+            if (RoomExists(roomID))
+            {
+                return rooms[roomID];
+            }
+            return null;
         }
     }
 }

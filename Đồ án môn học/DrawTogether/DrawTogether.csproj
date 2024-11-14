@@ -61,7 +61,7 @@
     <Compile Include="DrawTogether.Designer.cs">
       <DependentUpon>DrawTogether.cs</DependentUpon>
     </Compile>
-    <Compile Include="NetworkManager.cs" />
+    <Compile Include="ClientNetworkManager.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

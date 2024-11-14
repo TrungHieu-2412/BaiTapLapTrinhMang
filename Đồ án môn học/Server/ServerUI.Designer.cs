@@ -28,25 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lisInformation = new System.Windows.Forms.ListView();
             this.btnStartServer = new System.Windows.Forms.Button();
             this.btnStopServer = new System.Windows.Forms.Button();
             this.txtCountRoom = new System.Windows.Forms.TextBox();
             this.txtCountUser = new System.Windows.Forms.TextBox();
             this.lblCountRoom = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.txtInformation = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
-            // 
-            // lisInformation
-            // 
-            this.lisInformation.BackColor = System.Drawing.SystemColors.Window;
-            this.lisInformation.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lisInformation.HideSelection = false;
-            this.lisInformation.Location = new System.Drawing.Point(226, 27);
-            this.lisInformation.Name = "lisInformation";
-            this.lisInformation.Size = new System.Drawing.Size(544, 403);
-            this.lisInformation.TabIndex = 0;
-            this.lisInformation.UseCompatibleStateImageBehavior = false;
             // 
             // btnStartServer
             // 
@@ -109,18 +98,26 @@
             this.label2.TabIndex = 6;
             this.label2.Text = "USER";
             // 
+            // txtInformation
+            // 
+            this.txtInformation.Location = new System.Drawing.Point(218, 20);
+            this.txtInformation.Multiline = true;
+            this.txtInformation.Name = "txtInformation";
+            this.txtInformation.Size = new System.Drawing.Size(570, 418);
+            this.txtInformation.TabIndex = 7;
+            // 
             // ServerUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.txtInformation);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.lblCountRoom);
             this.Controls.Add(this.txtCountUser);
             this.Controls.Add(this.txtCountRoom);
             this.Controls.Add(this.btnStopServer);
             this.Controls.Add(this.btnStartServer);
-            this.Controls.Add(this.lisInformation);
             this.Name = "ServerUI";
             this.Text = "ServerUI";
             this.ResumeLayout(false);
@@ -129,13 +126,12 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.ListView lisInformation;
         private System.Windows.Forms.Button btnStartServer;
         private System.Windows.Forms.Button btnStopServer;
         private System.Windows.Forms.TextBox txtCountRoom;
         private System.Windows.Forms.TextBox txtCountUser;
         private System.Windows.Forms.Label lblCountRoom;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtInformation;
     }
 }
