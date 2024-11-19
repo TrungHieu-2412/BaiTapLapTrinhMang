@@ -16,7 +16,7 @@ namespace DrawTogether
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new DrawTogether());
+            Application.Run(new HOME());
         }
     }
 }
