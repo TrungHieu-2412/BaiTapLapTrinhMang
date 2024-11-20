@@ -14,18 +14,14 @@ using DrawTogether.Server;
 
 namespace Server
 {
-    public class RoomManager
+    public class ServerRoomManager
     {
         private Dictionary<string, Room> rooms = new Dictionary<string, Room>();
-        private ServerNetworkManager networkManager; // Thêm thuộc tính networkManager
+        private ServerNetworkManager networkManager;
 
-        public RoomManager(ServerNetworkManager networkManager) // Thêm tham số networkManager vào constructor
+        public ServerRoomManager(ServerNetworkManager networkManager) 
         {
             this.networkManager = networkManager;
-        }
-
-        public RoomManager()
-        {
         }
 
         public string CreateRoom(User user)
@@ -37,16 +33,16 @@ namespace Server
             return roomID;
         }
 
-        public void AddClientToRoom(string roomID, ClientHandler client)
+        public void AddClientToRoom(string roomID, ServerHandler client)
         {
             // Thêm client vào phòng
             if (RoomExists(roomID))
             {
                 rooms[roomID].AddClient(client);
-
+               
                 // Cập nhật danh sách người dùng cho tất cả các client trong phòng
                 string usernames = string.Join(",", rooms[roomID].GetUsers().Select(u => u.Username));
-                Packet updatePacket = new Packet
+                ServerPacket updatePacket = new ServerPacket
                 {
                     Code = 1,
                     Username = usernames,
@@ -56,7 +52,7 @@ namespace Server
             }
         }
 
-        public void RemoveClientFromRoom(string roomID, ClientHandler client)
+        public void RemoveClientFromRoom(string roomID, ServerHandler client)
         {
             if (RoomExists(roomID))
             {
@@ -64,7 +60,7 @@ namespace Server
 
                 // Cập nhật danh sách người dùng cho tất cả các client trong phòng
                 string usernames = string.Join(",", rooms[roomID].GetUsers().Select(u => u.Username));
-                Packet updatePacket = new Packet
+                ServerPacket updatePacket = new ServerPacket
                 {
                     Code = 1,
                     Username = usernames,
@@ -96,10 +92,18 @@ namespace Server
             return rooms.Count;
         }
 
-        public Room GetRoom(string roomID)
+        public Room GetRoom(string roomID, ServerHandler handler)
         {
             if (RoomExists(roomID))
             {
+                // Gửi bitmap của phòng về cho client
+                ServerPacket response = new ServerPacket
+                {
+                    Code = 5,
+                    RoomID = roomID,
+                    BitmapString = rooms[roomID].BitmapToString(rooms[roomID].Bitmap)
+                };
+                handler.Send(response);
                 return rooms[roomID];
             }
             return null;

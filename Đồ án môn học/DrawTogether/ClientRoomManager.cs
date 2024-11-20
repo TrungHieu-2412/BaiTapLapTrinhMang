@@ -4,20 +4,59 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
+using DrawTogether.Client.Model;
+using DrawTogether.Client.Networking;
 using Newtonsoft.Json;
-
+using Server;
+//using DrawTogether.Server;
 namespace DrawTogether.Client.Room
 {
-    internal class RoomManager
+    internal class ClientRoomManager
     {
         private ListView lisUserName;
         private TextBox txtRoomCodeCanva;
         private string currentRoomID;
 
-        public RoomManager(ListView lisUserName, TextBox txtRoomCodeCanva)
+        private ClientNetworkManager networkManager;
+
+        public ClientRoomManager(ListView lisUserName, TextBox txtRoomCodeCanva, ClientNetworkManager networkManager)
         {
             this.lisUserName = lisUserName;
             this.txtRoomCodeCanva = txtRoomCodeCanva;
+            this.networkManager = networkManager;
+        }
+
+        public ClientRoomManager(ListView lisUserName, TextBox txtRoomCodeCanva)
+        {
+            this.lisUserName = lisUserName;
+            this.txtRoomCodeCanva = txtRoomCodeCanva;
+        }
+
+        // Sử dụng riêng biệt để xử lý yêu cầu GetRoom
+        public ClientRoom GetRoom(string roomID)
+        {
+            ClientPacket request = new ClientPacket { Code = 5, RoomID = roomID };
+            networkManager.Send(request);
+
+            ClientPacket response = networkManager.Receive();
+
+            if (response == null || response.BitmapString == null)
+            {
+                ShowError("Lỗi khi lấy thông tin phòng!");
+                return null;
+            }
+
+            try
+            {
+                Bitmap bitmap = StringToBitmap(response.BitmapString);
+                ClientRoom clientRoom = new ClientRoom(roomID, bitmap);  // Khởi tạo ClientRoom
+                return clientRoom;
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Lỗi xử lý hình ảnh: {ex.Message}");
+                return null;
+            }
         }
 
         public void UpdateRoomID(string roomID)

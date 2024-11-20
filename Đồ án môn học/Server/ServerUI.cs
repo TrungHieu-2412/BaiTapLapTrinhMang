@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,14 +14,14 @@ namespace Server
     public partial class ServerUI : Form
     {
         private ServerNetworkManager networkManager;
-        private RoomManager roomManager;
+        private ServerRoomManager roomManager;
         private TextBox txtPort;
 
         public ServerUI()
         {
             InitializeComponent();
             networkManager = new ServerNetworkManager(this); // Truyền this (ServerUI) vào constructor của NetworkManager
-            roomManager = new RoomManager(networkManager);
+            roomManager = new ServerRoomManager(networkManager);
             txtPort = new TextBox();
             txtPort.Location = new Point(10, 10);
             txtPort.Text = "9999";

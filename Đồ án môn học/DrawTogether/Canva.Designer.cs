@@ -41,15 +41,15 @@
             this.picColor = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.Edit = new System.Windows.Forms.Panel();
+            this.btnEllipse = new System.Windows.Forms.Button();
+            this.btnRectangle = new System.Windows.Forms.Button();
+            this.btnLine = new System.Windows.Forms.Button();
             this.btnUndo = new System.Windows.Forms.Button();
             this.Canvas = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.lblPlayerName = new System.Windows.Forms.Label();
             this.txtRoomCodeCanva = new System.Windows.Forms.TextBox();
             this.lisUserName = new System.Windows.Forms.ListView();
-            this.btnLine = new System.Windows.Forms.Button();
-            this.btnRectangle = new System.Windows.Forms.Button();
-            this.btnEllipse = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picColor)).BeginInit();
             this.Edit.SuspendLayout();
@@ -178,6 +178,36 @@
             this.Edit.Size = new System.Drawing.Size(800, 113);
             this.Edit.TabIndex = 0;
             // 
+            // btnEllipse
+            // 
+            this.btnEllipse.Location = new System.Drawing.Point(26, 63);
+            this.btnEllipse.Name = "btnEllipse";
+            this.btnEllipse.Size = new System.Drawing.Size(102, 23);
+            this.btnEllipse.TabIndex = 10;
+            this.btnEllipse.Text = "Elip";
+            this.btnEllipse.UseVisualStyleBackColor = true;
+            this.btnEllipse.Click += new System.EventHandler(this.btnEllipse_Click);
+            // 
+            // btnRectangle
+            // 
+            this.btnRectangle.Location = new System.Drawing.Point(134, 19);
+            this.btnRectangle.Name = "btnRectangle";
+            this.btnRectangle.Size = new System.Drawing.Size(102, 23);
+            this.btnRectangle.TabIndex = 9;
+            this.btnRectangle.Text = "Chữ nhật";
+            this.btnRectangle.UseVisualStyleBackColor = true;
+            this.btnRectangle.Click += new System.EventHandler(this.btnRectangle_Click);
+            // 
+            // btnLine
+            // 
+            this.btnLine.Location = new System.Drawing.Point(26, 18);
+            this.btnLine.Name = "btnLine";
+            this.btnLine.Size = new System.Drawing.Size(102, 23);
+            this.btnLine.TabIndex = 8;
+            this.btnLine.Text = "Đường thẳng";
+            this.btnLine.UseVisualStyleBackColor = true;
+            this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
+            // 
             // btnUndo
             // 
             this.btnUndo.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnUndo.BackgroundImage")));
@@ -201,6 +231,7 @@
             this.Canvas.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.Canvas.TabIndex = 1;
             this.Canvas.TabStop = false;
+            this.Canvas.Click += new System.EventHandler(this.Canvas_Click);
             this.Canvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Canvas_MouseDown);
             this.Canvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Canvas_MouseMove);
             this.Canvas.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Canvas_MouseUp);
@@ -239,36 +270,6 @@
             this.lisUserName.Size = new System.Drawing.Size(121, 97);
             this.lisUserName.TabIndex = 5;
             this.lisUserName.UseCompatibleStateImageBehavior = false;
-            // 
-            // btnLine
-            // 
-            this.btnLine.Location = new System.Drawing.Point(26, 18);
-            this.btnLine.Name = "btnLine";
-            this.btnLine.Size = new System.Drawing.Size(102, 23);
-            this.btnLine.TabIndex = 8;
-            this.btnLine.Text = "Đường thẳng";
-            this.btnLine.UseVisualStyleBackColor = true;
-            this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
-            // 
-            // btnRectangle
-            // 
-            this.btnRectangle.Location = new System.Drawing.Point(134, 19);
-            this.btnRectangle.Name = "btnRectangle";
-            this.btnRectangle.Size = new System.Drawing.Size(102, 23);
-            this.btnRectangle.TabIndex = 9;
-            this.btnRectangle.Text = "Chữ nhật";
-            this.btnRectangle.UseVisualStyleBackColor = true;
-            this.btnRectangle.Click += new System.EventHandler(this.btnRectangle_Click);
-            // 
-            // btnEllipse
-            // 
-            this.btnEllipse.Location = new System.Drawing.Point(26, 63);
-            this.btnEllipse.Name = "btnEllipse";
-            this.btnEllipse.Size = new System.Drawing.Size(102, 23);
-            this.btnEllipse.TabIndex = 10;
-            this.btnEllipse.Text = "Elip";
-            this.btnEllipse.UseVisualStyleBackColor = true;
-            this.btnEllipse.Click += new System.EventHandler(this.btnEllipse_Click);
             // 
             // Canva
             // 

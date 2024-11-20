@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DrawTogether.Server
 {
-    public class Packet
+    public class ServerPacket
     {
         public int Code { get; set; }
         public string Username { get; set; }

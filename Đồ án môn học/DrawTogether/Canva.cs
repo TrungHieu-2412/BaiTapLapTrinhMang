@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using DrawTogether.Client.Networking;
 using DrawTogether.Client.Model;
 using DrawTogether.Client.Room;
+using Server;
 
 namespace DrawTogether
 {
@@ -35,14 +36,14 @@ namespace DrawTogether
 
         // Mạng
         private ClientNetworkManager networkManager;
-        private Packet Client_Information;
+        private ClientPacket Client_Information;
         private IPEndPoint serverEndPoint;
 
         private bool isOffline;
         private bool NewClient;
 
         // Quản lý phòng và người dùng
-        private RoomManager roomManager;
+        private ClientRoomManager roomManager;
 
         // Ngữ cảnh đồng bộ hóa
         private SynchronizationContext uiContext = SynchronizationContext.Current ?? new SynchronizationContext();
@@ -69,7 +70,7 @@ namespace DrawTogether
             this.Resize += new EventHandler(Form_Canva_Resize);
             this.Load += new System.EventHandler(this.Form_Canva_Load);
 
-            Client_Information = new Packet()
+            Client_Information = new ClientPacket()
             {
                 Code = code,
                 Username = Username,
@@ -83,9 +84,14 @@ namespace DrawTogether
                 txtRoomCodeCanva.Visible = true;
                 serverEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), 9999);
                 networkManager = new ClientNetworkManager(serverEndPoint);
-            }
 
-            roomManager = new RoomManager(lisUserName, txtRoomCodeCanva);
+                roomManager = new ClientRoomManager(lisUserName, txtRoomCodeCanva, networkManager);
+            }
+            else
+            {
+                // Khởi tạo ClientRoomManager mà không truyền NetworkManager vào
+                roomManager = new ClientRoomManager(lisUserName, txtRoomCodeCanva);
+            }
         }
 
         private void Form_Canva_Load(object sender, EventArgs e)
@@ -127,7 +133,7 @@ namespace DrawTogether
                 while (true)
                 {
                     // Nhận Packet từ server
-                    Packet response = networkManager.Receive();
+                    ClientPacket response = networkManager.Receive();
                     if (response != null)
                     {
                         switch (response.Code)
@@ -145,7 +151,7 @@ namespace DrawTogether
                                 HandleDrawBitmapStatus(response);
                                 break;
                             case 4: // Nhận dữ liệu vẽ
-                                HandleReceiveDrawingData(response);
+                                HandleReceiveDrawingData(response, GetRoomManager());
                                 break;
                         }
                     }
@@ -162,18 +168,18 @@ namespace DrawTogether
             }
         }
 
-        private void HandleGenerateRoomStatus(Packet response)
+        private void HandleGenerateRoomStatus(ClientPacket response)
         {
             Client_Information.RoomID = response.RoomID;
             roomManager.UpdateRoomID(Client_Information.RoomID);
             NewClient = false;
         }
 
-        private void HandleJoinRoomStatus(Packet response)
+        private void HandleJoinRoomStatus(ClientPacket response)
         {
             if (NewClient)
             {
-                networkManager.Send(new Packet
+                networkManager.Send(new ClientPacket
                 {
                     Code = 2,
                     RoomID = response.RoomID,
@@ -212,11 +218,14 @@ namespace DrawTogether
             }
         }
 
-        private void HandleSyncBitmapStatus(Packet response)
+        private void HandleSyncBitmapStatus(ClientPacket response)
         {
             // Cập nhật Bitmap từ server
             Bitmap _bitmap = roomManager.StringToBitmap(response.BitmapString);
-            bitmap.Dispose(); // Giải phóng Bitmap cũ
+            if (bitmap != null)
+            {
+                bitmap.Dispose(); // Giải phóng Bitmap cũ
+            }
             bitmap = _bitmap;
             graphics = Graphics.FromImage(bitmap);
             Canvas.Image = bitmap;
@@ -233,9 +242,14 @@ namespace DrawTogether
         }
 
 
-        private void HandleDrawBitmapStatus(Packet response)
+        private void HandleDrawBitmapStatus(ClientPacket response)
         {
+            // Cập nhật Bitmap từ server
             Bitmap _bitmap = roomManager.StringToBitmap(response.BitmapString);
+            if (bitmap != null)
+            {
+                bitmap.Dispose(); // Giải phóng Bitmap cũ
+            }
             bitmap = _bitmap;
             graphics = Graphics.FromImage(bitmap);
             Canvas.Image = bitmap;
@@ -245,39 +259,36 @@ namespace DrawTogether
             }, null);
         }
 
-        private void HandleReceiveDrawingData(Packet packet)
+        private ClientRoomManager GetRoomManager()
+        {
+            return roomManager;
+        }
+
+
+        private void HandleReceiveDrawingData(ClientPacket packet, ClientRoomManager roomManager)
         {
             // Lấy phòng hiện tại
             Room currentRoom = roomManager.GetRoom(packet.RoomID);
             if (currentRoom != null)
             {
                 // Cập nhật Bitmap chung của phòng
-                if (packet.ShapeTag == 10)
+                using (Graphics g = Graphics.FromImage(currentRoom.Bitmap))
                 {
-                    // Vẽ đường thẳng
-                    if (packet.Points_1 != null && packet.Points_2 != null && packet.Points_1.Count == packet.Points_2.Count)
+                    Pen p = new Pen(Color.FromName(packet.PenColor), packet.PenWidth);
+                    if (packet.ShapeTag == 10) // Vẽ đường thẳng
                     {
                         for (int i = 0; i < packet.Points_1.Count; i++)
                         {
-                            using (Graphics g = Graphics.FromImage(currentRoom.Bitmap))
-                            {
-                                Pen p = new Pen(Color.FromName(packet.PenColor), packet.PenWidth);
-                                g.DrawLine(p, packet.Points_1[i], packet.Points_2[i]);
-                            }
+                            g.DrawLine(p, packet.Points_1[i], packet.Points_2[i]);
                         }
                     }
-                }
-                else
-                {
-                    // Vẽ hình dạng khác (đường thẳng, hình chữ nhật, hình elip)
-                    int cursorX = (int)packet.Position[0];
-                    int cursorY = (int)packet.Position[1];
-                    float w = packet.Position[2];
-                    float h = packet.Position[3];
-
-                    using (Graphics g = Graphics.FromImage(currentRoom.Bitmap))
+                    else
                     {
-                        Pen p = new Pen(Color.FromName(packet.PenColor), packet.PenWidth);
+                        int cursorX = (int)packet.Position[0];
+                        int cursorY = (int)packet.Position[1];
+                        float w = packet.Position[2];
+                        float h = packet.Position[3];
+
                         if (packet.ShapeTag == 11)
                         {
                             g.DrawLine(p, cursorX, cursorY, cursorX + w, cursorY + h);
@@ -292,15 +303,13 @@ namespace DrawTogether
                         }
                     }
                 }
-
-                // Gửi thông báo cập nhật Bitmap cho các client khác
-                Packet syncPacket = new Packet
+                ClientPacket syncPacket = new ClientPacket
                 {
                     Code = 2,
                     RoomID = packet.RoomID,
                     BitmapString = currentRoom.BitmapToString(currentRoom.Bitmap)
                 };
-                networkManager.Broadcast(syncPacket, this);
+                networkManager.Send(syncPacket);
             }
         }
         private List<Tuple<Point, Point, Pen>> drawnLines = new List<Tuple<Point, Point, Pen>>();
@@ -401,6 +410,20 @@ namespace DrawTogether
 
                     // Cập nhật lại hình ảnh hiển thị trên Canvas
                     Canvas.Image = bitmap;
+
+                    // Gửi gói dữ liệu vẽ đến server
+                    ClientPacket message = new ClientPacket
+                    {
+                        Code = 4,
+                        Username = Client_Information.Username,
+                        RoomID = Client_Information.RoomID,
+                        PenColor = cursorPen.Color.Name,
+                        PenWidth = cursorPen.Width,
+                        ShapeTag = shapeTag,
+                        Points_1 = points_1,
+                        Points_2 = points_2,
+                    };
+                    sendToServer(message);
                 }
             }
         }
@@ -409,12 +432,13 @@ namespace DrawTogether
         private void Canvas_MouseUp(object sender, MouseEventArgs e)
         {
             cursorMoving = false;
-            if (shapeTag == 11) // Đường thẳng
+
+            if (shapeTag == 11 || shapeTag == 12 || shapeTag == 13)
             {
                 float w = e.X - cursorX;
                 float h = e.Y - cursorY;
 
-                Packet message = new Packet
+                ClientPacket message = new ClientPacket
                 {
                     Code = 4,
                     Username = Client_Information.Username,
@@ -440,7 +464,7 @@ namespace DrawTogether
                 float w = e.X - cursorX;
                 float h = e.Y - cursorY;
 
-                Packet message = new Packet
+                ClientPacket message = new ClientPacket
                 {
                     Code = 4,
                     Username = Client_Information.Username,
@@ -470,7 +494,7 @@ namespace DrawTogether
             }
         }
 
-        private void sendToServer(Packet message)
+        private void sendToServer(ClientPacket message)
         {
             if (networkManager != null)
             {
@@ -479,9 +503,9 @@ namespace DrawTogether
                     // Gọi hàm Send() của NetworkManager với đối tượng Packet
                     networkManager.Send(message);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    roomManager.ShowError("Failed to send data to server!");
+                    roomManager.ShowError("Failed to send data to server! " + ex.Message);
                 }
             }
         }
@@ -664,6 +688,11 @@ namespace DrawTogether
         }
 
         private void Canva_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Canvas_Click(object sender, EventArgs e)
         {
 
         }

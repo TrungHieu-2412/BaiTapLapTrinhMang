@@ -8,15 +8,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Server
+namespace Server 
 {
     public class Room
     {
         private string roomID;
         private Bitmap bitmap;
-        private List<ClientHandler> clients = new List<ClientHandler>();
+        private List<ServerHandler> clients = new List<ServerHandler>();
         private Stack<Bitmap> bitmapHistory = new Stack<Bitmap>();
         private ServerNetworkManager networkManager;
+
 
         public Room(string roomID, ServerNetworkManager networkManager) // Thêm tham số networkManager vào constructor
         {
@@ -28,14 +29,16 @@ namespace Server
 
         public string RoomID { get { return roomID; } }
         public Bitmap Bitmap { get { return bitmap; } set { bitmap = value; } }
-        public List<ClientHandler> Clients { get { return clients; } }
+        public List<ServerHandler> Clients { get { return clients; } }
 
-        public void AddClient(ClientHandler client)
+        public ServerHandler Client { get; set; }
+
+        public void AddClient(ServerHandler client)
         {
             clients.Add(client);
         }
 
-        public void RemoveClient(ClientHandler client)
+        public void RemoveClient(ServerHandler client)
         {
             clients.Remove(client);
         }

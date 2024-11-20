@@ -52,7 +52,7 @@ namespace DrawTogether.Client.Networking
             }
         }
 
-        public void Send(Packet packet)
+        public void Send(ClientPacket packet)
         {
             try
             {
@@ -66,12 +66,12 @@ namespace DrawTogether.Client.Networking
             }
         }
 
-        public Packet Receive()
+        public ClientPacket Receive()
         {
             try
             {
                 string responseInJson = reader.ReadLine();
-                return JsonConvert.DeserializeObject<Packet>(responseInJson);
+                return JsonConvert.DeserializeObject<ClientPacket>(responseInJson);
             }
             catch (Exception ex)
             {

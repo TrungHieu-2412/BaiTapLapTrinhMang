@@ -16,12 +16,12 @@ namespace Server
     public class ServerNetworkManager
     {
         private TcpListener listener;
-        private List<ClientHandler> clients = new List<ClientHandler>();
-        private RoomManager roomManager;
+        private List<ServerHandler> clients = new List<ServerHandler>();
+        private ServerRoomManager roomManager;
 
         public ServerNetworkManager(ServerUI serverUI)
         {
-            roomManager = new RoomManager(this);
+            roomManager = new ServerRoomManager(this);
         }
 
         public void StartServer(int port)
@@ -59,7 +59,7 @@ namespace Server
                 Console.WriteLine("Kết nối mới từ {0}", client.Client.RemoteEndPoint);
 
                 // Tạo luồng xử lý cho client
-                ClientHandler handler = new ClientHandler(client, roomManager, this);
+                ServerHandler handler = new ServerHandler(client, roomManager, this);
                 clients.Add(handler);
 
                 // Khởi tạo reader và writer cho ClientHandler
@@ -73,10 +73,10 @@ namespace Server
             }
         }
 
-        public void Broadcast(Packet packet, ClientHandler sender)
+        public void Broadcast(ServerPacket packet, ServerHandler sender)
         {
             // Gửi dữ liệu đến tất cả các client trong cùng phòng với sender
-            foreach (ClientHandler client in clients)
+            foreach (ServerHandler client in clients)
             {
                 if (client != sender && client.RoomID == sender.RoomID)
                 {
@@ -85,7 +85,7 @@ namespace Server
             }
         }
 
-        public void RemoveClient(ClientHandler client)
+        public void RemoveClient(ServerHandler client)
         {
             // Xóa client khỏi danh sách clients
             clients.Remove(client);
@@ -95,7 +95,7 @@ namespace Server
                 roomManager.RemoveClientFromRoom(client.RoomID, client);
 
                 // Gửi thông báo client rời phòng đến các client còn lại trong phòng
-                Packet leavePacket = new Packet
+                ServerPacket leavePacket = new ServerPacket
                 {
                     Code = 1,
                     Username = "!" + client.Username,

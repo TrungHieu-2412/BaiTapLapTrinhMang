@@ -14,10 +14,10 @@ using System.Drawing;
 
 namespace Server
 {
-    public class ClientHandler
+    public class ServerHandler
     {
         private TcpClient client;
-        private RoomManager roomManager;
+        private ServerRoomManager roomManager;
         private ServerNetworkManager networkManager;
         public StreamReader reader;
         public StreamWriter writer;
@@ -26,7 +26,7 @@ namespace Server
         public string RoomID { get; set; }
         public User User { get; set; }
         //public Bitmap Bitmap { get; set; }
-        public ClientHandler(TcpClient client, RoomManager roomManager, ServerNetworkManager networkManager)
+        public ServerHandler(TcpClient client, ServerRoomManager roomManager, ServerNetworkManager networkManager)
         {
             this.client = client;
             this.roomManager = roomManager;
@@ -43,7 +43,7 @@ namespace Server
             {
                 // Nhận thông tin client
                 string messageInJson = reader.ReadLine();
-                Packet packet = JsonConvert.DeserializeObject<Packet>(messageInJson);
+                ServerPacket packet = JsonConvert.DeserializeObject<ServerPacket>(messageInJson);
 
                 // Lưu username của client
                 Username = packet.Username;
@@ -55,7 +55,7 @@ namespace Server
                     messageInJson = reader.ReadLine();
                     if (messageInJson != null)
                     {
-                        packet = JsonConvert.DeserializeObject<Packet>(messageInJson);
+                        packet = JsonConvert.DeserializeObject<ServerPacket>(messageInJson);
 
                         switch (packet.Code)
                         {
@@ -73,6 +73,9 @@ namespace Server
                                 break;
                             case 4: // Nhận dữ liệu vẽ
                                 HandleReceiveDrawingData(packet);
+                                break;
+                            case 5: // Xử lý yêu cầu lấy thông tin phòng
+                                HandleGetRoom(packet);
                                 break;
                         }
                     }
@@ -97,41 +100,30 @@ namespace Server
             }
         }
 
-        private void HandleReceiveDrawingData(Packet packet)
+        private void HandleReceiveDrawingData(ServerPacket packet)
         {
             // Lấy phòng hiện tại
-            Room currentRoom = roomManager.GetRoom(packet.RoomID);
+            Room currentRoom = roomManager.GetRoom(packet.RoomID, this);
             if (currentRoom != null)
             {
+                // Cập nhật bitmap chung của phòng
                 using (Graphics g = Graphics.FromImage(currentRoom.Bitmap))
                 {
-                    // Cập nhật Bitmap chung của phòng
-                    if (packet.ShapeTag == 10)
+                    Pen p = new Pen(Color.FromName(packet.PenColor), packet.PenWidth);
+                    if (packet.ShapeTag == 10) // Vẽ đường thẳng
                     {
-                        // Vẽ đường thẳng
-                        if (packet.Points_1 != null && packet.Points_2 != null && packet.Points_1.Count == packet.Points_2.Count)
+                        for (int i = 0; i < packet.Points_1.Count; i++)
                         {
-                            for (int i = 0; i < packet.Points_1.Count; i++)
-                            {
-
-
-                                Pen p = new Pen(Color.FromName(packet.PenColor), packet.PenWidth);
-                                g.DrawLine(p, packet.Points_1[i], packet.Points_2[i]);
-
-                            }
+                            g.DrawLine(p, packet.Points_1[i], packet.Points_2[i]);
                         }
                     }
                     else
                     {
-                        // Vẽ hình dạng khác (đường thẳng, hình chữ nhật, hình elip)
                         int cursorX = (int)packet.Position[0];
                         int cursorY = (int)packet.Position[1];
                         float w = packet.Position[2];
                         float h = packet.Position[3];
 
-
-
-                        Pen p = new Pen(Color.FromName(packet.PenColor), packet.PenWidth);
                         if (packet.ShapeTag == 11)
                         {
                             g.DrawLine(p, cursorX, cursorY, cursorX + w, cursorY + h);
@@ -144,21 +136,27 @@ namespace Server
                         {
                             g.DrawEllipse(p, cursorX, cursorY, w, h);
                         }
-
                     }
                 }
-                // Gửi thông báo cập nhật Bitmap cho các client khác
-                Packet syncPacket = new Packet
+
+                // Gửi thông báo cập nhật nét vẽ cho các client khác
+                ServerPacket syncPacket = new ServerPacket
                 {
-                    Code = 2,
-                    RoomID = packet.RoomID,
-                    BitmapString = currentRoom.BitmapToString(currentRoom.Bitmap)
+                    Code = 4,
+                    ShapeTag = packet.ShapeTag,
+                    PenColor = packet.PenColor,
+                    PenWidth = packet.PenWidth,
+                    Points_1 = packet.Points_1,
+                    Points_2 = packet.Points_2,
+                    Position = packet.Position,
+                    RoomID = packet.RoomID
                 };
                 networkManager.Broadcast(syncPacket, this);
             }
         }
 
-        private void HandleGenerateRoom(Packet packet)
+
+        private void HandleGenerateRoom(ServerPacket packet)
         {
             // Tạo phòng mới
             string roomID = roomManager.CreateRoom(User);
@@ -174,7 +172,7 @@ namespace Server
             Console.WriteLine("Client {0} đã tạo phòng {1}.", Username, roomID);
         }
 
-        private void HandleJoinRoom(Packet packet)
+        private void HandleJoinRoom(ServerPacket packet)
         {
             // Kiểm tra xem phòng có tồn tại không
             if (!roomManager.RoomExists(packet.RoomID))
@@ -190,7 +188,7 @@ namespace Server
 
             // Cập nhật danh sách người dùng cho tất cả các client trong phòng
             string usernames = string.Join(",", roomManager.GetUsersInRoom(packet.RoomID).Select(u => u.Username));
-            Packet updatePacket = new Packet
+            ServerPacket updatePacket = new ServerPacket
             {
                 Code = 1,
                 Username = usernames,
@@ -199,17 +197,17 @@ namespace Server
             networkManager.Broadcast(updatePacket, this);
 
             // Gửi thông tin phòng cho client
-            Send(new Packet { Code = 1, RoomID = packet.RoomID });
+            Send(new ServerPacket { Code = 1, RoomID = packet.RoomID });
 
             ((ServerUI)Application.OpenForms["ServerUI"]).UpdateInformation($"Client {Username} đã tham gia phòng {packet.RoomID}");
 
             Console.WriteLine("Client {0} đã tham gia phòng {1}.", Username, packet.RoomID);
         }
 
-        private void HandleSyncBitmap(Packet packet)
+        private void HandleSyncBitmap(ServerPacket packet)
         {
             // Gửi bitmap hiện tại của client đến các client khác trong cùng phòng
-            Packet response = new Packet
+            ServerPacket response = new ServerPacket
             {
                 Code = 2,
                 RoomID = packet.RoomID,
@@ -218,10 +216,10 @@ namespace Server
             networkManager.Broadcast(response, this);
         }
 
-        private void HandleDrawBitmap(Packet packet)
+        private void HandleDrawBitmap(ServerPacket packet)
         {
             // Gửi bitmap đã vẽ đến các client khác trong cùng phòng
-            Packet response = new Packet
+            ServerPacket response = new ServerPacket
             {
                 Code = 3,
                 RoomID = packet.RoomID,
@@ -230,7 +228,36 @@ namespace Server
             networkManager.Broadcast(response, this);
         }
 
-        public void Send(Packet packet)
+         private void HandleGetRoom(ServerPacket packet)
+        {
+            // Lấy thông tin phòng từ ServerRoomManager
+            Room room = roomManager.GetRoom(packet.RoomID, this);
+            if (room != null)
+            {
+                // Gửi bitmap của phòng về cho client
+                ServerPacket response = new ServerPacket
+                {
+                    Code = 5,
+                    RoomID = packet.RoomID,
+                    BitmapString = room.BitmapToString(room.Bitmap)
+                };
+                Send(response);
+            }
+            else
+            {
+                // Gửi lỗi về client
+                ServerPacket response = new ServerPacket
+                {
+                    Code = 5,
+                    RoomID = packet.RoomID,
+                    BitmapString = null
+                };
+                Send(response);
+            }
+        }
+
+
+        public void Send(ServerPacket packet)
         {
             // Gửi dữ liệu đến client
             try

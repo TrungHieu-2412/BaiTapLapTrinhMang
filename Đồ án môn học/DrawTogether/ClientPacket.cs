@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace DrawTogether.Client.Model
 {
-    internal class Packet
+    internal class ClientPacket
     {
         public int Code { get; set; }
         public string Username { get; set; }
