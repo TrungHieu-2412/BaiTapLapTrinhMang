@@ -1,22 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading;
 using System.Windows.Forms;
-using DrawTogether.Client.Networking;
-using DrawTogether.Client.Model;
-using DrawTogether.Client.Room;
-using Newtonsoft.Json;
-using System.Runtime.Remoting.Contexts;
+
 
 namespace DrawTogether
 {
-    public partial class DrawTogether : Form
+    public partial class HOME : Form
     {
         private bool isOffline;
         public bool IsCreateRoom { get; private set; }
@@ -24,7 +12,7 @@ namespace DrawTogether
         public string RoomCode { get; private set; }
         public string ServerIP { get; private set; }
 
-        public DrawTogether()
+        public HOME()
         {
             InitializeComponent();
             // Ẩn các control khi chưa chọn chế độ online/offline
@@ -50,19 +38,22 @@ namespace DrawTogether
             btnCreateRoom.Visible = true;
             btnJoinRoom.Visible = true;
             lblName.Visible = true;
-            lblRoomCode.Visible = true;
+            lblRoomCode.Visible = false;
             txtName.Visible = true;
-            txtRoomCode.Visible = true;
+            txtRoomCode.Visible = false;
             btnStart.Visible = true;
             btnBack.Visible = true;
             lblServerIP.Visible = true;
             txtServerIP.Visible = true;
+            btnStart.Enabled = false;
+
+
         }
 
         private void btnOffline_Click(object sender, EventArgs e)
         {
             // Mở form Canva ở chế độ offline
-            Canva CanvaForm = new Canva(true, 0, "", "", "");
+            CLIENT CanvaForm = new CLIENT(true, 0, "", "", "");
             CanvaForm.FormClosed += (s, args) => this.Show();
             CanvaForm.Show();
             this.Hide();
@@ -80,19 +71,35 @@ namespace DrawTogether
             HideOnlineControls();
             btnOnline.Visible = true;
             btnOffline.Visible = true;
+            btnStart.Text = "Start";
+
         }
 
         private void btnCreateRoom_Click(object sender, EventArgs e)
         {
             IsCreateRoom = true;
             btnStart.Text = "Create Room";
+            txtRoomCode.Visible = false;
+            lblRoomCode.Visible = false;
+            btnStart.Enabled = true;
+
         }
 
         private void btnJoinRoom_Click(object sender, EventArgs e)
         {
             IsCreateRoom = false;
             btnStart.Text = "Join Room";
+            txtRoomCode.Visible = true;
+            lblRoomCode.Visible = true;
+            btnStart.Enabled = true;
+
         }
+
+
+
+
+
+
 
         private void btnStart_Click(object sender, EventArgs e)
         {
@@ -107,8 +114,11 @@ namespace DrawTogether
 
             if (IsCreateRoom)
             {
+                // Chổ này phải tự Generate một cái RoomID
+                RoomCode = HOME.GenerateRandomString();
+
                 // Mở form Canva ở chế độ online, tạo phòng
-                Canva CanvaForm = new Canva(false, 0, UserName, "", ServerIP);
+                CLIENT CanvaForm = new CLIENT(false, 0, UserName, RoomCode, ServerIP);
                 CanvaForm.FormClosed += (s, args) => this.Show();
                 CanvaForm.Show();
                 this.Hide();
@@ -124,11 +134,21 @@ namespace DrawTogether
                 }
 
                 // Mở form Canva ở chế độ online, tham gia phòng
-                Canva CanvaForm = new Canva(false, 1, UserName, RoomCode, ServerIP);
+                CLIENT CanvaForm = new CLIENT(false, 1, UserName, RoomCode, ServerIP);
                 CanvaForm.FormClosed += (s, args) => this.Show();
                 CanvaForm.Show();
                 this.Hide();
             }
+        }
+
+
+
+
+        public static string GenerateRandomString()
+        {
+            Random random = new Random();
+            int randomNumber = random.Next(0, 10000); // Tạo số ngẫu nhiên từ 0 đến 9999
+            return randomNumber.ToString("D4"); // Định dạng thành chuỗi 4 ký tự
         }
     }
 }
