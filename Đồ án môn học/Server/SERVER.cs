@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.IO;
 using Newtonsoft.Json;
+using System.Linq;
 
 namespace Server
 {
@@ -17,12 +18,13 @@ namespace Server
         private List<User> userList = new List<User>();
         private TcpListener listener;
         private RoomManager roomManager;
+ 
 
 
         public SERVER()
         {
             InitializeComponent();
-            roomManager = new RoomManager(listviewInformation, textBox_room_count, textBox_user_count);
+            roomManager = new RoomManager(txtInformation, textBox_room_count, textBox_user_count);
         }
 
 
@@ -106,6 +108,9 @@ namespace Server
                         case 4:
                             HandleSendGraphicsStatus(user, request);
                             break;
+                        case 5:
+                            HandleClientMessage(user, request);
+                            break;
                     }
                 }
             }
@@ -182,6 +187,10 @@ namespace Server
 
 
 
+
+
+
+
         private void HandleSyncBitmapStatus(User user, Packet request)
         {
             int id = int.Parse(request.RoomID.ToString());
@@ -217,73 +226,6 @@ namespace Server
             sendSpecific(_user, request);
         }
 
-        // Mới thêm
-        //private void HandleDrawGraphics(User user, Packet request)
-        //{
-        //    int id;
-        //    if (!int.TryParse(request.RoomID, out id))
-        //    {
-        //        roomManager.ShowError($"Mã phòng nhận được không hợp lệ: {request.RoomID}");
-        //        return;
-        //    }
-
-        //    Room requestingRoom = roomList.Find(room => room.roomID == id);
-        //    if (requestingRoom == null)
-        //    {
-        //        roomManager.ShowError($"Không tìm thấy phòng có ID {id}.");
-        //        return;
-        //    }
-
-
-        //    Bitmap roomBitmap = requestingRoom.bitmap ?? new Bitmap(1024, 768); // Mặc định kích thước nếu null
-        //    using (Graphics g = Graphics.FromImage(roomBitmap))
-        //    {
-        //        Pen p = new Pen(Color.FromName(request.PenColor), request.PenWidth);
-        //        // Vẽ lên Graphics g dựa trên dữ liệu request
-        //        if (request.ShapeTag == 10)
-        //        {
-        //            for (int i = 0; i < request.Points_1.Count; i++)
-        //            {
-        //                g.DrawLine(p, request.Points_1[i], request.Points_2[i]);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            // Xử lý các hình dạng khác (11, 12, 13) ở đây sử dụng request.Position
-        //            float[] pos = request.Position;
-        //            int x = (int)pos[0];
-        //            int y = (int)pos[1];
-        //            float w = pos[2];
-        //            float h = pos[3];
-
-        //            switch (request.ShapeTag)
-        //            {
-        //                case 11: g.DrawLine(p, x, y, x + w, y + h); break;
-        //                case 12: g.DrawRectangle(p, x, y, w, h); break;
-        //                case 13: g.DrawEllipse(p, x, y, w, h); break;
-        //            }
-        //        }
-        //    }
-        //    requestingRoom.bitmap = roomBitmap;
-
-
-
-
-        //    // Phát sóng đến TẤT CẢ các client trong phòng
-        //    foreach (User _user in requestingRoom.userList)
-        //    {
-        //        try
-        //        {
-        //            sendSpecific(_user, request);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            roomManager.ShowError($"Lỗi gửi dữ liệu đến người dùng {_user.Username}: {ex.Message}");
-        //            // Xem xét xóa người dùng đã ngắt kết nối khỏi phòng ở đây.
-        //        }
-        //    }
-        //}
-
 
         private void HandleSendGraphicsStatus(User user, Packet request)
         {
@@ -307,6 +249,26 @@ namespace Server
             }
         }
 
+        private void HandleClientMessage(User sender, Packet request)
+        {
+            int roomID = int.Parse(request.RoomID);
+            Room requestingRoom = roomList.FirstOrDefault(r => r.roomID == roomID);
+
+            if (requestingRoom != null)
+            {
+                // Gửi tin nhắn đến tất cả các user trong phòng, trừ người gửi
+                foreach (User user in requestingRoom.userList)
+                {
+                    if (user != sender)
+                    {
+                        sendSpecific(user, request);
+                    }
+                }
+
+                // Ghi log tin nhắn trên giao diện Server
+                roomManager.WriteToLog($"Client {sender.Username} đã gửi đoạn tin nhắn đến phòng {roomID}: {request.BitmapString}");
+            }
+        }
 
         private void close_client(User user)
         {
@@ -442,30 +404,30 @@ namespace Server
 //--------------  Định nghĩa Class RoomManager --------------
     public class RoomManager
     {
-        ListView Log;
         TextBox RoomCnt;
         TextBox UserCnt;
+        TextBox txtInformation;
 
-        public RoomManager(ListView log, TextBox room_count, TextBox user_count)
+        public RoomManager(TextBox txtInformation, TextBox room_count, TextBox user_count)
         {
-            this.Log = log;
+            this.txtInformation = txtInformation;
             this.RoomCnt = room_count;
             this.UserCnt = user_count;
         }
 
+        // Sử dụng Textbox để hiển thị
         public void WriteToLog(string line)
         {
-            if (Log.InvokeRequired)
+            if (txtInformation.InvokeRequired)
             {
-                Log.Invoke(new Action(() =>
+                txtInformation.Invoke(new Action(() =>
                 {
-                    Log.Items.Add(string.Format("{0}: {1}", DateTime.Now.ToString("HH:mm"), line ));
-
+                    txtInformation.AppendText($"{DateTime.Now:HH:mm}: {line}{Environment.NewLine}");
                 }));
             }
             else
             {
-                Log.Items.Add(string.Format("{0}: {1}", DateTime.Now.ToString("HH:mm"), line));
+                txtInformation.AppendText($"{DateTime.Now:HH:mm}: {line}{Environment.NewLine}");
             }
         }
 
@@ -514,6 +476,8 @@ namespace Server
         public int roomID;
         public List<User> userList = new List<User>();
         public Bitmap bitmap;
+
+        
 
         public string GetUsernameListInString()
         {

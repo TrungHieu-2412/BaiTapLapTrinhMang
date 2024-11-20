@@ -44,11 +44,15 @@
             this.btnRectangle = new System.Windows.Forms.Button();
             this.btnLine1 = new System.Windows.Forms.Button();
             this.btnUndo = new System.Windows.Forms.Button();
+            this.lisUserName = new System.Windows.Forms.ListView();
+            this.labPlayerName = new System.Windows.Forms.Label();
             this.Canvas = new System.Windows.Forms.PictureBox();
             this.labRoom = new System.Windows.Forms.Label();
-            this.labPlayerName = new System.Windows.Forms.Label();
             this.txtRoomCodeCanva = new System.Windows.Forms.TextBox();
-            this.lisUserName = new System.Windows.Forms.ListView();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtOutputMess = new System.Windows.Forms.TextBox();
+            this.txtInputMess = new System.Windows.Forms.MaskedTextBox();
+            this.btnSendMess = new System.Windows.Forms.Button();
             this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picColor)).BeginInit();
             this.Edit.SuspendLayout();
@@ -156,8 +160,10 @@
             this.Edit.Controls.Add(this.btnLine1);
             this.Edit.Controls.Add(this.btnUndo);
             this.Edit.Controls.Add(this.label1);
+            this.Edit.Controls.Add(this.lisUserName);
             this.Edit.Controls.Add(this.picColor);
             this.Edit.Controls.Add(this.cbBrushSize);
+            this.Edit.Controls.Add(this.labPlayerName);
             this.Edit.Controls.Add(this.btnChooseColor);
             this.Edit.Controls.Add(this.btnEraser);
             this.Edit.Controls.Add(this.btnDrawing);
@@ -213,6 +219,27 @@
             this.btnUndo.UseVisualStyleBackColor = true;
             this.btnUndo.Click += new System.EventHandler(this.btnUndo_Click);
             // 
+            // lisUserName
+            // 
+            this.lisUserName.HideSelection = false;
+            this.lisUserName.Location = new System.Drawing.Point(608, 35);
+            this.lisUserName.Margin = new System.Windows.Forms.Padding(2);
+            this.lisUserName.Name = "lisUserName";
+            this.lisUserName.Size = new System.Drawing.Size(361, 41);
+            this.lisUserName.TabIndex = 5;
+            this.lisUserName.UseCompatibleStateImageBehavior = false;
+            // 
+            // labPlayerName
+            // 
+            this.labPlayerName.AutoSize = true;
+            this.labPlayerName.Font = new System.Drawing.Font("MV Boli", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labPlayerName.Location = new System.Drawing.Point(614, 13);
+            this.labPlayerName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.labPlayerName.Name = "labPlayerName";
+            this.labPlayerName.Size = new System.Drawing.Size(71, 16);
+            this.labPlayerName.TabIndex = 3;
+            this.labPlayerName.Text = "Player Name";
+            // 
             // Canvas
             // 
             this.Canvas.ContextMenuStrip = this.contextMenuStrip1;
@@ -231,49 +258,66 @@
             // labRoom
             // 
             this.labRoom.AutoSize = true;
-            this.labRoom.Location = new System.Drawing.Point(10, 102);
+            this.labRoom.Location = new System.Drawing.Point(11, 104);
             this.labRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labRoom.Name = "labRoom";
             this.labRoom.Size = new System.Drawing.Size(63, 13);
             this.labRoom.TabIndex = 2;
             this.labRoom.Text = "Room Code";
             // 
-            // labPlayerName
-            // 
-            this.labPlayerName.AutoSize = true;
-            this.labPlayerName.Location = new System.Drawing.Point(10, 145);
-            this.labPlayerName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.labPlayerName.Name = "labPlayerName";
-            this.labPlayerName.Size = new System.Drawing.Size(67, 13);
-            this.labPlayerName.TabIndex = 3;
-            this.labPlayerName.Text = "Player Name";
-            // 
             // txtRoomCodeCanva
             // 
-            this.txtRoomCodeCanva.Location = new System.Drawing.Point(9, 118);
+            this.txtRoomCodeCanva.Location = new System.Drawing.Point(10, 120);
             this.txtRoomCodeCanva.Margin = new System.Windows.Forms.Padding(2);
             this.txtRoomCodeCanva.Name = "txtRoomCodeCanva";
             this.txtRoomCodeCanva.Size = new System.Drawing.Size(76, 20);
             this.txtRoomCodeCanva.TabIndex = 4;
             // 
-            // lisUserName
+            // label2
             // 
-            this.lisUserName.HideSelection = false;
-            this.lisUserName.Location = new System.Drawing.Point(9, 161);
-            this.lisUserName.Margin = new System.Windows.Forms.Padding(2);
-            this.lisUserName.Name = "lisUserName";
-            this.lisUserName.Size = new System.Drawing.Size(92, 80);
-            this.lisUserName.TabIndex = 5;
-            this.lisUserName.UseCompatibleStateImageBehavior = false;
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 147);
+            this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(50, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Message";
+            // 
+            // txtOutputMess
+            // 
+            this.txtOutputMess.Location = new System.Drawing.Point(10, 163);
+            this.txtOutputMess.Multiline = true;
+            this.txtOutputMess.Name = "txtOutputMess";
+            this.txtOutputMess.Size = new System.Drawing.Size(158, 132);
+            this.txtOutputMess.TabIndex = 7;
+            // 
+            // txtInputMess
+            // 
+            this.txtInputMess.Location = new System.Drawing.Point(10, 301);
+            this.txtInputMess.Name = "txtInputMess";
+            this.txtInputMess.Size = new System.Drawing.Size(100, 20);
+            this.txtInputMess.TabIndex = 8;
+            // 
+            // btnSendMess
+            // 
+            this.btnSendMess.Font = new System.Drawing.Font("MV Boli", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSendMess.Location = new System.Drawing.Point(116, 299);
+            this.btnSendMess.Name = "btnSendMess";
+            this.btnSendMess.Size = new System.Drawing.Size(52, 23);
+            this.btnSendMess.TabIndex = 9;
+            this.btnSendMess.Text = "SEND";
+            this.btnSendMess.UseVisualStyleBackColor = true;
             // 
             // CLIENT
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(995, 603);
-            this.Controls.Add(this.lisUserName);
+            this.Controls.Add(this.btnSendMess);
+            this.Controls.Add(this.txtInputMess);
+            this.Controls.Add(this.txtOutputMess);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.txtRoomCodeCanva);
-            this.Controls.Add(this.labPlayerName);
             this.Controls.Add(this.labRoom);
             this.Controls.Add(this.Canvas);
             this.Controls.Add(this.Edit);
@@ -312,5 +356,9 @@
         private System.Windows.Forms.Button btnEllipse;
         private System.Windows.Forms.Button btnRectangle;
         private System.Windows.Forms.Button btnLine1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtOutputMess;
+        private System.Windows.Forms.MaskedTextBox txtInputMess;
+        private System.Windows.Forms.Button btnSendMess;
     }
 }

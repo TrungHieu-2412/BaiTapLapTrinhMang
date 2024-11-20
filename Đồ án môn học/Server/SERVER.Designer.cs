@@ -34,14 +34,16 @@
             this.textBox_user_count = new System.Windows.Forms.TextBox();
             this.lblCountRoom = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.listviewInformation = new System.Windows.Forms.ListView();
+            this.txtInformation = new System.Windows.Forms.TextBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnStartServer
             // 
+            this.btnStartServer.AllowDrop = true;
             this.btnStartServer.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.btnStartServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStartServer.Location = new System.Drawing.Point(29, 58);
+            this.btnStartServer.Location = new System.Drawing.Point(20, 57);
             this.btnStartServer.Margin = new System.Windows.Forms.Padding(2);
             this.btnStartServer.Name = "btnStartServer";
             this.btnStartServer.Size = new System.Drawing.Size(109, 53);
@@ -54,7 +56,7 @@
             // 
             this.btnStopServer.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
             this.btnStopServer.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnStopServer.Location = new System.Drawing.Point(29, 136);
+            this.btnStopServer.Location = new System.Drawing.Point(20, 135);
             this.btnStopServer.Margin = new System.Windows.Forms.Padding(2);
             this.btnStopServer.Name = "btnStopServer";
             this.btnStopServer.Size = new System.Drawing.Size(109, 53);
@@ -66,7 +68,7 @@
             // 
             this.textBox_room_count.BackColor = System.Drawing.SystemColors.Control;
             this.textBox_room_count.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_room_count.Location = new System.Drawing.Point(29, 245);
+            this.textBox_room_count.Location = new System.Drawing.Point(20, 244);
             this.textBox_room_count.Margin = new System.Windows.Forms.Padding(2);
             this.textBox_room_count.Name = "textBox_room_count";
             this.textBox_room_count.Size = new System.Drawing.Size(110, 23);
@@ -76,7 +78,7 @@
             // 
             this.textBox_user_count.BackColor = System.Drawing.SystemColors.Control;
             this.textBox_user_count.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_user_count.Location = new System.Drawing.Point(29, 327);
+            this.textBox_user_count.Location = new System.Drawing.Point(20, 326);
             this.textBox_user_count.Margin = new System.Windows.Forms.Padding(2);
             this.textBox_user_count.Name = "textBox_user_count";
             this.textBox_user_count.Size = new System.Drawing.Size(110, 23);
@@ -86,7 +88,7 @@
             // 
             this.lblCountRoom.AutoSize = true;
             this.lblCountRoom.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblCountRoom.Location = new System.Drawing.Point(29, 227);
+            this.lblCountRoom.Location = new System.Drawing.Point(20, 226);
             this.lblCountRoom.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.lblCountRoom.Name = "lblCountRoom";
             this.lblCountRoom.Size = new System.Drawing.Size(51, 17);
@@ -97,30 +99,37 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(29, 309);
+            this.label2.Location = new System.Drawing.Point(20, 308);
             this.label2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(46, 17);
             this.label2.TabIndex = 6;
             this.label2.Text = "USER";
             // 
-            // listviewInformation
+            // txtInformation
             // 
-            this.listviewInformation.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.listviewInformation.HideSelection = false;
-            this.listviewInformation.LabelWrap = false;
-            this.listviewInformation.Location = new System.Drawing.Point(152, 14);
-            this.listviewInformation.Name = "listviewInformation";
-            this.listviewInformation.Size = new System.Drawing.Size(436, 340);
-            this.listviewInformation.TabIndex = 7;
-            this.listviewInformation.UseCompatibleStateImageBehavior = false;
+            this.txtInformation.Location = new System.Drawing.Point(144, 12);
+            this.txtInformation.Multiline = true;
+            this.txtInformation.Name = "txtInformation";
+            this.txtInformation.Size = new System.Drawing.Size(444, 342);
+            this.txtInformation.TabIndex = 8;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("MV Boli", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(34, 22);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 16);
+            this.label1.TabIndex = 9;
+            this.label1.Text = "Draw Together";
             // 
             // SERVER
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.ClientSize = new System.Drawing.Size(600, 366);
-            this.Controls.Add(this.listviewInformation);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.txtInformation);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.lblCountRoom);
             this.Controls.Add(this.textBox_user_count);
@@ -142,6 +151,7 @@
         private System.Windows.Forms.TextBox textBox_user_count;
         private System.Windows.Forms.Label lblCountRoom;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ListView listviewInformation;
+        private System.Windows.Forms.TextBox txtInformation;
+        private System.Windows.Forms.Label label1;
     }
 }
