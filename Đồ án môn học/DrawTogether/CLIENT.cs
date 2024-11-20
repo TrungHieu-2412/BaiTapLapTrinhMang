@@ -92,7 +92,11 @@ namespace DrawTogether
             txtRoomCodeCanva.Visible = false;
             lisUserName.Visible = false;
             labPlayerName.Visible = false;
-            
+            txtInputMess.Visible = false;
+            txtOutputMess.Visible = false;
+            btnSendMess.Visible = false;
+
+
             // Khởi tạo thông tin Client
             Client_Information = new Packet()
             {
@@ -112,11 +116,12 @@ namespace DrawTogether
                 txtRoomCodeCanva.Visible = true;
                 lisUserName.Visible = true;
                 labPlayerName.Visible = true;
+                txtInputMess.Visible = true;
+                txtOutputMess.Visible = true;
+                btnSendMess.Visible = true;
+
                 // Khởi tạo một điểm kết nối với Server thông qua địa chị IP của Server đã nhập trong Textbox bên HOME
                 serverEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), 9999);
-                // Khởi tạo một đối tượng để quản lý việc giao tiếp giữa CLient và Server thông qua điểm kết nối đã tạo ở trên
-                //networkManager = new ClientNetworkManager(serverEndPoint);
-                // Tạo đối tượng quản lý ID phòng và các sự kiện liên quan đến danh sách người chơi 
             }
             roomManager = new RoomManager(lisUserName, txtRoomCodeCanva);
         }
