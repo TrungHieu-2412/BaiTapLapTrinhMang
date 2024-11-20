@@ -49,19 +49,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Canva.cs">
+    <Compile Include="CLIENT.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Canva.Designer.cs">
-      <DependentUpon>Canva.cs</DependentUpon>
+    <Compile Include="CLIENT.Designer.cs">
+      <DependentUpon>CLIENT.cs</DependentUpon>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="ClientRoom.cs" />
     <Compile Include="DrawTogether.cs">
+=======
+    <Compile Include="HOME.cs">
+>>>>>>> 8928b978c332370027744cdfbd0acbde3ab2748e
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DrawTogether.Designer.cs">
-      <DependentUpon>DrawTogether.cs</DependentUpon>
+    <Compile Include="HOME.Designer.cs">
+      <DependentUpon>HOME.cs</DependentUpon>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="ClientNetworkManager.cs" />
     <Compile Include="ClientPacket.cs" />
     <Compile Include="Program.cs" />
@@ -69,9 +74,15 @@
     <Compile Include="ClientRoomManager.cs" />
     <EmbeddedResource Include="Canva.resx">
       <DependentUpon>Canva.cs</DependentUpon>
+=======
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CLIENT.resx">
+      <DependentUpon>CLIENT.cs</DependentUpon>
+>>>>>>> 8928b978c332370027744cdfbd0acbde3ab2748e
     </EmbeddedResource>
-    <EmbeddedResource Include="DrawTogether.resx">
-      <DependentUpon>DrawTogether.cs</DependentUpon>
+    <EmbeddedResource Include="HOME.resx">
+      <DependentUpon>HOME.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
