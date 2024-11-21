@@ -19,14 +19,11 @@ namespace Server
         private TcpListener listener;
         private RoomManager roomManager;
  
-
-
         public SERVER()
         {
             InitializeComponent();
             roomManager = new RoomManager(txtInformation, textBox_room_count, textBox_user_count);
         }
-
 
         private void btnStartServer_Click(object sender, EventArgs e)
         {
@@ -37,16 +34,15 @@ namespace Server
             clientListener.IsBackground = true;
             clientListener.Start();
 
-            roomManager.WriteToLog("Start listening for incoming requests...");
+            roomManager.WriteToLog("Bắt đầu lắng nghe các kết nối . . .");
 
             this.btnStartServer.Enabled = false;
             this.btnStopServer.Enabled = true;
         }
 
-
         private void btnStopServer_Click(object sender, EventArgs e)
         {
-            roomManager.WriteToLog("Stop listening for incoming requests");
+            roomManager.WriteToLog("Đã dừng lắng nghe các yêu cầu từ Client!");
             foreach (User user in userList)
             {
                 user.Client.Close();
@@ -133,7 +129,7 @@ namespace Server
             newRoom.userList.Add(user);
             roomList.Add(newRoom);
 
-            roomManager.WriteToLog(user.Username + " created new room. Room code: " + newRoom.roomID);
+            roomManager.WriteToLog(user.Username + " đã tạo phòng. Room code: " + newRoom.roomID);
             roomManager.UpdateRoomCount(roomList.Count);
             roomManager.UpdateUserCount(userList.Count);
 
@@ -181,15 +177,9 @@ namespace Server
                 sendSpecific(_user, request);
             }
 
-            roomManager.WriteToLog("Room " + request.RoomID + ": " + user.Username + " joined");
+            roomManager.WriteToLog("Room " + request.RoomID + ": " + user.Username + " đã tham gia");
             roomManager.UpdateUserCount(userList.Count);
         }
-
-
-
-
-
-
 
         private void HandleSyncBitmapStatus(User user, Packet request)
         {
@@ -208,7 +198,6 @@ namespace Server
             sendSpecific(_user, request);
         }
 
-
         private void HandleSendBitmapStatus(User user, Packet request)
         {
             int id = int.Parse(request.RoomID.ToString());
@@ -225,7 +214,6 @@ namespace Server
             User _user = requestingRoom.userList[requestingRoom.userList.Count - 1];
             sendSpecific(_user, request);
         }
-
 
         private void HandleSendGraphicsStatus(User user, Packet request)
         {
@@ -289,7 +277,7 @@ namespace Server
 
             if (user.Username != string.Empty)
             {
-                roomManager.WriteToLog(user.Username + " disconnected.\n");
+                roomManager.WriteToLog(user.Username + " đã ngắt kết nối.\n");
             }
 
             // gửi thông báo về client vừa ngắt kết nối đến client khác trong phòng
@@ -303,7 +291,7 @@ namespace Server
                 if (roomList.Contains(requestingRoom))
                 {
                     roomList.Remove(requestingRoom);
-                    roomManager.WriteToLog("Deleted room: " + requestingRoom.roomID + " - No user here.");
+                    roomManager.WriteToLog("Đã xóa phòng: " + requestingRoom.roomID + " - Không còn ai ở đây.");
                 }
             }
             else
@@ -315,7 +303,6 @@ namespace Server
             }
             roomManager.UpdateRoomCount(roomList.Count);
             roomManager.UpdateUserCount(userList.Count);
-
 
             foreach (User _user in requestingRoom.userList)
             {
@@ -329,7 +316,6 @@ namespace Server
                 }
             }
         }
-
 
         private void sendSpecific(User user, Object message)
         {
@@ -345,7 +331,6 @@ namespace Server
             }
         }
 
-
         private void Server_FormClosed(object sender, FormClosedEventArgs e)
         {
             foreach (User user in userList)
@@ -358,10 +343,6 @@ namespace Server
             }
         } 
     }
-
-
-
-
 
 
 //--------------  Định nghĩa Class Packet --------------

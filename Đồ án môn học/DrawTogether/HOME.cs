@@ -46,8 +46,6 @@ namespace DrawTogether
             lblServerIP.Visible = true;
             txtServerIP.Visible = true;
             btnStart.Enabled = false;
-
-
         }
 
         private void btnOffline_Click(object sender, EventArgs e)
@@ -64,6 +62,7 @@ namespace DrawTogether
             btnOnline.Visible = false;
             btnOffline.Visible = false;
             ShowOnlineControls();
+            txtServerIP.Text = "34.201.71.75";
         }
 
         private void btnBack_Click(object sender, EventArgs e)
@@ -92,14 +91,7 @@ namespace DrawTogether
             txtRoomCode.Visible = true;
             lblRoomCode.Visible = true;
             btnStart.Enabled = true;
-
         }
-
-
-
-
-
-
 
         private void btnStart_Click(object sender, EventArgs e)
         {
@@ -140,9 +132,6 @@ namespace DrawTogether
                 this.Hide();
             }
         }
-
-
-
 
         public static string GenerateRandomString()
         {

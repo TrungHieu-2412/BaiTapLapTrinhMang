@@ -40,6 +40,7 @@
             this.picColor = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.Edit = new System.Windows.Forms.Panel();
+            this.label3 = new System.Windows.Forms.Label();
             this.btnEllipse = new System.Windows.Forms.Button();
             this.btnRectangle = new System.Windows.Forms.Button();
             this.btnLine1 = new System.Windows.Forms.Button();
@@ -90,7 +91,7 @@
             // 
             this.btnDrawing.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnDrawing.BackgroundImage")));
             this.btnDrawing.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnDrawing.Location = new System.Drawing.Point(203, 14);
+            this.btnDrawing.Location = new System.Drawing.Point(252, 20);
             this.btnDrawing.Margin = new System.Windows.Forms.Padding(2);
             this.btnDrawing.Name = "btnDrawing";
             this.btnDrawing.Size = new System.Drawing.Size(50, 54);
@@ -102,7 +103,7 @@
             // 
             this.btnEraser.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnEraser.BackgroundImage")));
             this.btnEraser.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnEraser.Location = new System.Drawing.Point(284, 14);
+            this.btnEraser.Location = new System.Drawing.Point(322, 20);
             this.btnEraser.Margin = new System.Windows.Forms.Padding(2);
             this.btnEraser.Name = "btnEraser";
             this.btnEraser.Size = new System.Drawing.Size(50, 54);
@@ -112,7 +113,8 @@
             // 
             // btnChooseColor
             // 
-            this.btnChooseColor.Location = new System.Drawing.Point(526, 10);
+            this.btnChooseColor.Font = new System.Drawing.Font("MV Boli", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnChooseColor.Location = new System.Drawing.Point(562, 16);
             this.btnChooseColor.Margin = new System.Windows.Forms.Padding(2);
             this.btnChooseColor.Name = "btnChooseColor";
             this.btnChooseColor.Size = new System.Drawing.Size(65, 24);
@@ -124,7 +126,7 @@
             // cbBrushSize
             // 
             this.cbBrushSize.FormattingEnabled = true;
-            this.cbBrushSize.Location = new System.Drawing.Point(436, 13);
+            this.cbBrushSize.Location = new System.Drawing.Point(472, 61);
             this.cbBrushSize.Margin = new System.Windows.Forms.Padding(2);
             this.cbBrushSize.Name = "cbBrushSize";
             this.cbBrushSize.Size = new System.Drawing.Size(67, 21);
@@ -134,7 +136,7 @@
             // picColor
             // 
             this.picColor.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.picColor.Location = new System.Drawing.Point(540, 39);
+            this.picColor.Location = new System.Drawing.Point(576, 45);
             this.picColor.Margin = new System.Windows.Forms.Padding(2);
             this.picColor.Name = "picColor";
             this.picColor.Size = new System.Drawing.Size(38, 37);
@@ -144,17 +146,18 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(453, 51);
+            this.label1.Font = new System.Drawing.Font("MV Boli", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(478, 21);
             this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(35, 17);
+            this.label1.Size = new System.Drawing.Size(48, 25);
             this.label1.TabIndex = 6;
             this.label1.Text = "Size";
             // 
             // Edit
             // 
             this.Edit.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
+            this.Edit.Controls.Add(this.label3);
             this.Edit.Controls.Add(this.btnEllipse);
             this.Edit.Controls.Add(this.btnRectangle);
             this.Edit.Controls.Add(this.btnLine1);
@@ -174,36 +177,49 @@
             this.Edit.Size = new System.Drawing.Size(995, 92);
             this.Edit.TabIndex = 0;
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(217, -3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(21, 93);
+            this.label3.TabIndex = 10;
+            this.label3.Text = "|\r\n|\r\n|";
+            // 
             // btnEllipse
             // 
-            this.btnEllipse.Location = new System.Drawing.Point(20, 51);
+            this.btnEllipse.Font = new System.Drawing.Font("MV Boli", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnEllipse.Location = new System.Drawing.Point(159, 20);
             this.btnEllipse.Margin = new System.Windows.Forms.Padding(2);
             this.btnEllipse.Name = "btnEllipse";
-            this.btnEllipse.Size = new System.Drawing.Size(53, 19);
+            this.btnEllipse.Size = new System.Drawing.Size(53, 53);
             this.btnEllipse.TabIndex = 10;
-            this.btnEllipse.Text = "Elip";
+            this.btnEllipse.Text = "elip";
             this.btnEllipse.UseVisualStyleBackColor = true;
             this.btnEllipse.Click += new System.EventHandler(this.btnEllipse_Click);
             // 
             // btnRectangle
             // 
-            this.btnRectangle.Location = new System.Drawing.Point(86, 15);
+            this.btnRectangle.Font = new System.Drawing.Font("MV Boli", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRectangle.Location = new System.Drawing.Point(78, 21);
             this.btnRectangle.Margin = new System.Windows.Forms.Padding(2);
             this.btnRectangle.Name = "btnRectangle";
-            this.btnRectangle.Size = new System.Drawing.Size(58, 19);
+            this.btnRectangle.Size = new System.Drawing.Size(68, 53);
             this.btnRectangle.TabIndex = 9;
-            this.btnRectangle.Text = "Chữ nhật";
+            this.btnRectangle.Text = "rectangle";
             this.btnRectangle.UseVisualStyleBackColor = true;
             this.btnRectangle.Click += new System.EventHandler(this.btnRectangle_Click);
             // 
             // btnLine1
             // 
-            this.btnLine1.Location = new System.Drawing.Point(20, 15);
+            this.btnLine1.Font = new System.Drawing.Font("MV Boli", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLine1.Location = new System.Drawing.Point(14, 21);
             this.btnLine1.Margin = new System.Windows.Forms.Padding(2);
             this.btnLine1.Name = "btnLine1";
-            this.btnLine1.Size = new System.Drawing.Size(53, 19);
+            this.btnLine1.Size = new System.Drawing.Size(51, 53);
             this.btnLine1.TabIndex = 8;
-            this.btnLine1.Text = "Đường thẳng";
+            this.btnLine1.Text = "line";
             this.btnLine1.UseVisualStyleBackColor = true;
             this.btnLine1.Click += new System.EventHandler(this.btnLine_Click);
             // 
@@ -211,7 +227,7 @@
             // 
             this.btnUndo.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("btnUndo.BackgroundImage")));
             this.btnUndo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.btnUndo.Location = new System.Drawing.Point(358, 14);
+            this.btnUndo.Location = new System.Drawing.Point(390, 21);
             this.btnUndo.Margin = new System.Windows.Forms.Padding(2);
             this.btnUndo.Name = "btnUndo";
             this.btnUndo.Size = new System.Drawing.Size(50, 54);
@@ -222,10 +238,10 @@
             // lisUserName
             // 
             this.lisUserName.HideSelection = false;
-            this.lisUserName.Location = new System.Drawing.Point(608, 35);
+            this.lisUserName.Location = new System.Drawing.Point(644, 41);
             this.lisUserName.Margin = new System.Windows.Forms.Padding(2);
             this.lisUserName.Name = "lisUserName";
-            this.lisUserName.Size = new System.Drawing.Size(361, 41);
+            this.lisUserName.Size = new System.Drawing.Size(337, 41);
             this.lisUserName.TabIndex = 5;
             this.lisUserName.UseCompatibleStateImageBehavior = false;
             // 
@@ -233,7 +249,7 @@
             // 
             this.labPlayerName.AutoSize = true;
             this.labPlayerName.Font = new System.Drawing.Font("MV Boli", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labPlayerName.Location = new System.Drawing.Point(614, 13);
+            this.labPlayerName.Location = new System.Drawing.Point(650, 19);
             this.labPlayerName.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.labPlayerName.Name = "labPlayerName";
             this.labPlayerName.Size = new System.Drawing.Size(71, 16);
@@ -360,5 +376,6 @@
         private System.Windows.Forms.TextBox txtOutputMess;
         private System.Windows.Forms.MaskedTextBox txtInputMess;
         private System.Windows.Forms.Button btnSendMess;
+        private System.Windows.Forms.Label label3;
     }
 }
