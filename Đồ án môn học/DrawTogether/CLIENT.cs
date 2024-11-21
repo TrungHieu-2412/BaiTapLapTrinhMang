@@ -15,7 +15,9 @@ namespace DrawTogether
 {
     public partial class CLIENT : Form
     {
-        // Khởi tạo các biến liên quan đến vẽ
+        // -----------------------------------------------------------------------------------
+        // Biến liên quan đến Vẽ
+        // -----------------------------------------------------------------------------------
         private Bitmap bitmap;
         private Graphics graphics;
         private Boolean cursorMoving = false;
@@ -26,44 +28,39 @@ namespace DrawTogether
         private Color stateColor;
         private int shapeTag = 10;
 
-        private List<Point> points_1 = new List<Point>();
-        private List<Point> points_2 = new List<Point>();
+        // Cấu trúc dữ liệu hỗ trợ vẽ
+        private List<Point> points_1 = new List<Point>();                // Danh sách điểm bắt đầu nét vẽ
+        private List<Point> points_2 = new List<Point>();                // Danh sách điểm kết thúc nét vẽ
         private bool isEraserMode = false;
-        private Color currentColor = Color.Black;
-        private int brushSize = 5;
-        private Stack<Bitmap> bitmapHistory = new Stack<Bitmap>(); // Lịch sử cho chức năng hoàn tác
+        private Color currentColor = Color.Black;                        // Màu vẽ hiện tại
+        private int brushSize = 5;                                       // Kích thước bút vẽ
+        private Stack<Bitmap> bitmapHistory = new Stack<Bitmap>();       // Lịch sử Bitmap để hoàn tác
+        private Bitmap backupBitmap;                                     // Bản sao dự phòng của Bitmap
+        private List<Tuple<Point, Point, Pen>> drawnLines = new List<Tuple<Point, Point, Pen>>(); // Lưu lịch sử các đường đã vẽ
+        private List<Point> currentStroke = new List<Point>();           // Lưu trữ nét vẽ hiện tại
 
-        private Bitmap backupBitmap;
-        private List<Tuple<Point, Point, Pen>> drawnLines = new List<Tuple<Point, Point, Pen>>();
+        // -----------------------------------------------------------------------------------
+        // Biến liên quan đến Mạng
+        // -----------------------------------------------------------------------------------
+        private TcpClient client;                   // Đối tượng client để giao tiếp mạng
+        private StreamReader reader;                // Đối tượng đọc dữ liệu từ server
+        private StreamWriter writer;                // Đối tượng gửi dữ liệu tới server
+        private Packet Client_Information;          // Gói thông tin client gửi tới server
+        private IPEndPoint serverEndPoint;          // Điểm kết nối tới server
+        private bool isOffline;                     // Trạng thái Offline của client
+        private bool NewClient;                     // Trạng thái kiểm tra client mới kết nối
+        private RoomManager roomManager;            // Quản lý phòng và người chơi trong phòng
+        private CancellationTokenSource cancellationTokenSource; // Quản lý hủy các tác vụ bất đồng bộ
 
-
-        // Khởi tạo các biến liên quan đến Mạng
-
-        //private ClientNetworkManager networkManager; // . . . .
-
-
-        private TcpClient client; //
-        private StreamReader reader; //Tạo đối tượng để đọc thông tin trao đổi qua luồng
-        private StreamWriter writer; //Đối tượng này để ghi thông tin gửi dữ liệu qua luồng
-        private Packet Client_Information; //Thằng này để gửi thông tin lúc kết nối
-        private IPEndPoint serverEndPoint; //Tạo một điểm kết nối để giao tiếp với server
-        private bool isOffline; //Check Offline
-        private bool NewClient;
-        private RoomManager roomManager; // Quản lý phòng và danh sách người chơi trong phòng
-
-
-        private List<Point> currentStroke = new List<Point>(); // Lưu trữ nét vẽ hiện tại
-
-
-        private CancellationTokenSource cancellationTokenSource; // . . . . . .
-
-
+        // -----------------------------------------------------------------------------------
         // Các biến khác
-        private SynchronizationContext uiContext = SynchronizationContext.Current ?? new SynchronizationContext(); // Ngữ cảnh đồng bộ hóa. Tránh xung đột khi cập nhật từ các luồng khác nhau
+        // -----------------------------------------------------------------------------------
+        private SynchronizationContext uiContext = SynchronizationContext.Current ?? new SynchronizationContext(); // Ngữ cảnh đồng bộ hóa, tránh xung đột luồng
 
-        //-------------------------------------NETWORK---------------------------------------------        
 
-        // Constructor khởi tạo Client
+        // -----------------------------------------------------------------------------------
+        // NETWORK
+        // -----------------------------------------------------------------------------------
         public CLIENT(bool IsOffline, int code, string Username, string Roomcode, string ServerIP)
         {
             InitializeComponent();
@@ -86,7 +83,7 @@ namespace DrawTogether
             this.ActiveControl = null;
             this.Resize += new EventHandler(Form_Canva_Resize);
             this.Load += new System.EventHandler(this.Form_Canva_Load);
-            
+
             //Mặc định (offline) các hiển thị không cần thiết thì bị tắt
             labRoom.Visible = false;
             txtRoomCodeCanva.Visible = false;
@@ -95,7 +92,7 @@ namespace DrawTogether
             txtInputMess.Visible = false;
             txtOutputMess.Visible = false;
             btnSendMess.Visible = false;
-
+            label2.Visible = false;
 
             // Khởi tạo thông tin Client
             Client_Information = new Packet()
@@ -105,11 +102,11 @@ namespace DrawTogether
                 RoomID = Roomcode,
             };
 
-
             // Khởi tạo cờ trạng thái
             NewClient = true;
-
+            //Check offline
             this.isOffline = IsOffline;
+
             if (!isOffline)
             {
                 labRoom.Visible = true;
@@ -119,23 +116,20 @@ namespace DrawTogether
                 txtInputMess.Visible = true;
                 txtOutputMess.Visible = true;
                 btnSendMess.Visible = true;
+                label2.Visible = true;
 
                 // Khởi tạo một điểm kết nối với Server thông qua địa chị IP của Server đã nhập trong Textbox bên HOME
                 serverEndPoint = new IPEndPoint(IPAddress.Parse(ServerIP), 9999);
             }
+            // Khởi tạo roomManager để quản lý danh sách người chơi và số phòng trong chính phòng hiện tại
             roomManager = new RoomManager(lisUserName, txtRoomCodeCanva);
         }
-
-
-
 
 
         // Load form & bắt đầu kết nối với Server
         private void Form_Canva_Load(object sender, EventArgs e)
         {
             btnSendMess.Click += new EventHandler(btnSendMess_Click);
-            //uiContext = SynchronizationContext.Current;
-
             if (!isOffline)
             {
                 if (Connect()) // Kết nối tới Server
@@ -162,14 +156,12 @@ namespace DrawTogether
                 }
             }
             // Một số cài đặt mặc định cho app
-            //Canvas.Dock = DockStyle.Fill;
-            //InitializeDrawingBitmap();
             cbBrushSize.Items.AddRange(new object[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 17, 20, 30 });
             cbBrushSize.SelectedItem = 5;
             cbBrushSize.SelectedIndexChanged += new EventHandler(cbBrushSize_SelectedIndexChanged);
         }
 
-        
+
 
         // Connect tới Server
         public bool Connect()
@@ -206,9 +198,7 @@ namespace DrawTogether
             }
         }
 
-
-
-
+        // Sự kiện gửi tin nhắn
         private void btnSendMess_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(txtInputMess.Text))
@@ -230,7 +220,6 @@ namespace DrawTogether
                 txtInputMess.Clear();
             }
         }
-
 
         private void Receive()
         {
@@ -267,7 +256,6 @@ namespace DrawTogether
                         }
                         else if (response.Code == 5)
                         {
-                            // Hiển thị tin nhắn trong Textbox
                             uiContext.Send(_ =>
                             {
                                 txtOutputMess.AppendText($"{response.Username}: {response.BitmapString}{Environment.NewLine}");
@@ -284,7 +272,7 @@ namespace DrawTogether
             }
         }
 
-//----------------------GIAO TIẾP CHÍNH----------------------------
+        //----------------------GIAO TIẾP CHÍNH----------------------------
         private void HandleGenerateRoomStatus(Packet response)
         {
             Client_Information.RoomID = response.RoomID;
@@ -311,7 +299,7 @@ namespace DrawTogether
                 this.Close();
                 return;
             }
-            
+
 
             if (response.Username.Contains('!'))
             {
@@ -417,50 +405,14 @@ namespace DrawTogether
             }, null);
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//------------------------THAO TÁC CHUỘT TRÊN BITMAP-------------------------------
+        //------------------------THAO TÁC CHUỘT TRÊN BITMAP-------------------------------
         private void Canvas_MouseDown(object sender, MouseEventArgs e)
         {
             cursorMoving = true;
             cursorX = e.X;
             cursorY = e.Y;
         }
-        
 
-        //private void Canvas_MouseMove(object sender, MouseEventArgs e)
-        //{
-        //    if (cursorX != -1 && cursorY != -1 && cursorMoving == true && (shapeTag == 10))
-        //    {
-        //        p = e.Location;
-
-        //        points_1.Add(new Point(cursorX, cursorY));
-        //        points_2.Add(p);
-
-        //        graphics.DrawLine(cursorPen, new Point(cursorX, cursorY), p);
-
-        //        cursorX = e.X;
-        //        cursorY = e.Y;
-        //    }
-        //    uiContext.Send(s =>
-        //    {
-        //        Canvas.Refresh();
-        //    }, null);
-        //}
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             if (cursorX != -1 && cursorY != -1 && cursorMoving == true && (shapeTag == 10))
@@ -469,7 +421,7 @@ namespace DrawTogether
                 points_1.Add(new Point(cursorX, cursorY));
                 points_2.Add(p);
                 cursorPen = new Pen(currentColor, brushSize); // Update pen with currentColor
-                                                              
+
                 graphics.DrawLine(cursorPen, new Point(cursorX, cursorY), p);
                 cursorX = e.X;
                 cursorY = e.Y;
@@ -528,21 +480,9 @@ namespace DrawTogether
             points_2.Clear();
         }
 
-        //-------------------------------------MAIN EVEN---------------------------------------------        
-
-        // Khởi tạo vùng vẽ ban đầu
-        //private void InitializeDrawingBitmap()
-        //{
-        //    if (bitmap != null)
-        //    {
-        //        bitmap.Dispose();
-        //    }
-        //    bitmap = new Bitmap(Canvas.Width, Canvas.Height);
-        //    graphics = Graphics.FromImage(bitmap);
-        //    graphics.Clear(Color.White);
-        //    Canvas.Image = bitmap;
-        //}
-
+        // -----------------------------------------------------------------------------------
+        // MAIN EVEN
+        // -----------------------------------------------------------------------------------
         private void Form_Canva_Resize(object sender, EventArgs e)
         {
             if (Canvas.Width > 0 && Canvas.Height > 0 && (Canvas.Width != bitmap.Width || Canvas.Height != bitmap.Height))
@@ -567,7 +507,6 @@ namespace DrawTogether
             }
         }
 
-//------------------------SỰ KIỆN CHÍNH------------------------------
         // Sự kiện khi chọn màu vẽ
         private void btnChooseColor_Click(object sender, EventArgs e)
         {
@@ -749,14 +688,13 @@ namespace DrawTogether
         }
 
 
-//-------------------------------------FUNCTION---------------------------------------------        
+        //-------------------------------------CÁC FUNCTION KHÁC---------------------------------------------        
 
         // Lưu bản sao của Bitmap vào Stack, phục vụ cho chức năng hoàn tác
         private void SaveBitmapState()
         {
             bitmapHistory.Push((Bitmap)bitmap.Clone());
         }
-
 
         // Thiết lập nét vẽ
         private void PenOptimizer(Pen pen)
@@ -766,157 +704,10 @@ namespace DrawTogether
         }
 
 
-
         private void Canva_Load(object sender, EventArgs e)
         {
 
         }
     }
 
-//-----------------------------ĐỊNH NGHĨA CÁC LỚP CẦN THIẾT---------------------------------------
-    
-    public class Packet
-    {
-        public int Code { get; set; }
-        public string Username { get; set; }
-        public string RoomID { get; set; }
-        public string PenColor { get; set; }
-        public float PenWidth { get; set; }
-        public int ShapeTag { get; set; }
-        public List<Point> Points_1 { get; set; }
-        public List<Point> Points_2 { get; set; }
-        public float[] Position { get; set; }
-        public string BitmapString { get; set; }
-    }
-
-
-    public class RoomManager
-    {
-        private ListView lisUserName;
-        private TextBox txtRoomCodeCanva;
-        private string currentRoomID;
-
-
-        public RoomManager(ListView lisUserName, TextBox txtRoomCodeCanva)
-        {
-            this.lisUserName = lisUserName;
-            this.txtRoomCodeCanva = txtRoomCodeCanva;
-        }
-
-
-        //Cập nhật RoomID lên Textbox Client
-        public void UpdateRoomID(string roomID)
-        {
-            if (txtRoomCodeCanva.InvokeRequired)
-            {
-                txtRoomCodeCanva.Invoke(new Action(() =>
-                {
-                    txtRoomCodeCanva.Text = "" + roomID;
-                }));
-            }
-            else
-            {
-                txtRoomCodeCanva.Text = "" + roomID;
-            }
-        }
-
-
-        //Cập nhật người chơi vào danh sách người chơi
-        //public void AddToUserListView(string line)
-        //{
-        //    if (lisUserName.InvokeRequired)
-        //    {
-        //        lisUserName.Invoke(new Action(() =>
-        //        {
-        //            lisUserName.Items.Add(line);
-        //        }));
-        //    }
-        //    else
-        //    {
-        //        lisUserName.Items.Add(line);
-        //    }
-        //}
-
-        public void AddToUserListView(string line)
-        {
-            if (lisUserName.InvokeRequired)
-            {
-                lisUserName.Invoke(new Action(() =>
-                {
-                    lisUserName.Items.Add(new ListViewItem(line));
-                }));
-            }
-            else
-            {
-                lisUserName.Items.Add(new ListViewItem(line));
-            }
-        }
-
-        public void RemoveFromUserListView(string line)
-        {
-            Action action = () =>
-            {
-                foreach (ListViewItem item in lisUserName.Items)
-                {
-                    if (item.Text == line)
-                    {
-                        lisUserName.Items.Remove(item);
-                        break;
-                    }
-                }
-            };
-            if (lisUserName.InvokeRequired)
-            {
-                lisUserName.Invoke(action);
-            }
-            else
-            {
-                action();
-            }
-        }
-
-        public void ClearUserListView()
-        {
-            Action action = () =>
-            {
-                ListViewItem firstLine = lisUserName.Items[0];
-                lisUserName.Clear();
-                lisUserName.Items.Add(firstLine);
-            };
-            if (lisUserName.InvokeRequired)
-            {
-                lisUserName.Invoke(action);
-            }
-            else
-            {
-                action();
-            }
-        }
-
-        public string BitmapToString(Bitmap bitmap)
-        {
-            System.IO.MemoryStream stream = new System.IO.MemoryStream();
-            bitmap.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-            byte[] imageBytes = stream.ToArray();
-            string base64String = Convert.ToBase64String(imageBytes);
-
-            return base64String;
-        }
-
-        public Bitmap StringToBitmap(string base64string)
-        {
-            byte[] imageBytes = Convert.FromBase64String(base64string);
-            System.IO.MemoryStream stream = new System.IO.MemoryStream(imageBytes, 0, imageBytes.Length);
-            stream.Write(imageBytes, 0, imageBytes.Length);
-            Image image = Image.FromStream(stream, true);
-            Bitmap bitmap = new Bitmap(image);
-
-            return bitmap;
-        }
-
-        public void ShowError(string message)
-        {
-            MessageBox.Show(message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
 }
