@@ -62,7 +62,7 @@ namespace DrawTogether
             btnOnline.Visible = false;
             btnOffline.Visible = false;
             ShowOnlineControls();
-            txtServerIP.Text = "34.201.71.75";
+            txtServerIP.Text = "54.234.1.80";
         }
 
         private void btnBack_Click(object sender, EventArgs e)
