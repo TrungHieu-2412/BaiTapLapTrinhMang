@@ -61,7 +61,7 @@
             // lbl_SoThu
             // 
             this.lbl_SoThu.AutoSize = true;
-            this.lbl_SoThu.Location = new System.Drawing.Point(31, 102);
+            this.lbl_SoThu.Location = new System.Drawing.Point(31, 96);
             this.lbl_SoThu.Name = "lbl_SoThu";
             this.lbl_SoThu.Size = new System.Drawing.Size(38, 13);
             this.lbl_SoThu.TabIndex = 2;
@@ -70,7 +70,7 @@
             // lbl_GanDay
             // 
             this.lbl_GanDay.AutoSize = true;
-            this.lbl_GanDay.Location = new System.Drawing.Point(165, 102);
+            this.lbl_GanDay.Location = new System.Drawing.Point(165, 96);
             this.lbl_GanDay.Name = "lbl_GanDay";
             this.lbl_GanDay.Size = new System.Drawing.Size(48, 13);
             this.lbl_GanDay.TabIndex = 3;
