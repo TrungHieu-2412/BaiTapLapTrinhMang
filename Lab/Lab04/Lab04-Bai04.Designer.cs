@@ -44,7 +44,7 @@
             this.txtUrl.Name = "txtUrl";
             this.txtUrl.Size = new System.Drawing.Size(589, 22);
             this.txtUrl.TabIndex = 0;
-            txtUrl.Text = "https://nt106.uitiot.vn";
+            this.txtUrl.Text = "https://nt106.uitiot.vn";
             // 
             // txtUsername
             // 
@@ -76,6 +76,7 @@
             this.btnLogin.TabIndex = 4;
             this.btnLogin.Text = "LOGIN";
             this.btnLogin.UseVisualStyleBackColor = true;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
             // lblUrl
             // 
