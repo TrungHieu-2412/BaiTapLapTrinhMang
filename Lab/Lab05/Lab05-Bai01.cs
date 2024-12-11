@@ -39,11 +39,10 @@ namespace Lab05
                 };
 
 
-
                 // Cấu hình SMTP client
                 using (var client = new SmtpClient())
                 {
-                    client.Connect("smtp.gmail.com", 587, false); 
+                    client.Connect("smtp.gmail.com", 465, true); 
                     client.Authenticate("nguyentrunghieu170221@gmail.com", "lvwj kubu hnyb hbda"); 
                     client.Send(message);
                     client.Disconnect(true);
