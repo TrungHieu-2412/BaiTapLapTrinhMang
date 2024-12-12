@@ -116,13 +116,11 @@
     <EmbeddedResource Include="Lab05-Bai01.resx">
       <DependentUpon>Lab05-Bai01.cs</DependentUpon>
     </EmbeddedResource>
-<<<<<<< HEAD
     <EmbeddedResource Include="Lab05-Bai02.resx">
       <DependentUpon>Lab05-Bai02.cs</DependentUpon>
-=======
+	</EmbeddedResource>
     <EmbeddedResource Include="Lab05-Bai03.resx">
       <DependentUpon>Lab05-Bai03.cs</DependentUpon>
->>>>>>> 92c8e8711458a8c36c2490b84fb56083a21d669a
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
